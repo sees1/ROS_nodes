@@ -1,0 +1,10 @@
+#ifndef VERTEX_CMD__DEF_H
+#define	VERTEX_CMD_DEF_H
+
+enum PointCMD {
+    del_point = 0,
+    new_point = 1,
+    update_point = 2
+} ;
+
+#endif /* VERTEX_CMD_DEF_H */

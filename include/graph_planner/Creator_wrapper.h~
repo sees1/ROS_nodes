@@ -1,0 +1,380 @@
+/* 
+ * File:   Creator_wrapper.h
+ * Author: Vladislav Tananaev
+ *
+ * Created on February 17, 2016, 8:29 AM
+ */
+
+#ifndef CREATORWRAPPER_H
+#define	CREATORWRAPPER_H
+
+#include "rail.h"
+#include <vector>
+#include "navigation_rail/conversions.h"
+#include <ros/ros.h>
+#include <ros/package.h>
+#include <std_msgs/String.h>
+#include <std_msgs/Int32.h>
+#include <tf/transform_listener.h>
+//include trajectory planning
+#include <boost/bind.hpp>
+#include <nav_msgs/GetMap.h>
+#include <nav_msgs/OccupancyGrid.h>
+#include <Trajectories/QuinticBezierTools.h> 
+#include <TrajectoryPlanner/GenericTrajectoryGenerator.h>
+#include <Trajectories/QBSplineFactory.h>
+#include <SmartPoint/smartpoint.h>
+#include <trajectory_msgs/waypoints.h>
+//Add messages
+#include "navigation_rail/Vertex.h"
+#include "navigation_rail/Edge.h"
+#include "navigation_rail/VertexCmd.h"
+#include "navigation_rail/EdgeCmd.h"
+#include "navigation_rail/GraphStructure.h"
+#include <trajectory_msgs/AutonomousStoppedMessage.h>
+//Add cmd enum variables
+#include "navigation_rail/vertex_cmd_def.h"
+#include "navigation_rail/edge_cmd_def.h"
+#include "motion_def.h"
+
+//Add ROS messages
+#include <visualization_msgs/MarkerArray.h>
+#include <geometry_msgs/Point.h>
+#include <interactive_markers/interactive_marker_server.h>
+
+#include <cmath>
+#include <stdlib.h> 
+#include <math.h>
+#include <eigen3/Eigen/Dense>
+
+//Add actions
+#include <actionlib/server/simple_action_server.h>
+#include <navigation_actions/waypointAction.h>
+#include <navigation_actions/NavGoalAction.h>
+#include <std_srvs/Empty.h>
+
+
+/*! Class RailWrapper is a connection between GUI and ROS functions*/
+class RailWrapper : public Rail {
+public:
+
+    //! A constructor.
+     /*!
+      The constructor creates ROS topics: "/waypoints"; "/graph"; 
+      It subscribes to the next ROS topics:
+      "/graph_viz"; "/query_viz"; "/path_viz"; "/vertex_cmd"; "/edge_cmd"; "/robotContour"; "/goto_cmd"; "/goal"; "/trajectory_generated";
+      It also creates interactive marker server "waypoint_marker";
+     and sets parameter "planning_mode_ = false" by default;
+     */
+    RailWrapper();
+
+    //! A destructor.
+    virtual ~RailWrapper();
+
+    //! init function. 
+    /*!
+       The function loads the graph (if planning_mode_ == false add interactive markers) and retrieves the map.
+       It initialises actions as_wp_ and as_ng_, if planning_mode_== true.
+     */
+    void init();
+
+    //! vertexCmdCallback function. 
+    /*!
+        /param cmd is a message which includes the information about waypoint, see ../navigation_rail/msgs/VertexCmd.msg.
+        The function gets the information from the buttons of the gui in rail_creator mode and implements the necessary operations with waypoints (add, delete, update) in rviz.
+     */
+    void vertexCmdCallback(const navigation_rail::VertexCmd::ConstPtr &cmd);
+
+    //! edgeCmdCallback function. 
+    /*!
+        /param cmd is a message which includes the information about edge, see ../navigation_rail/msgs/EdgeCmd.msg.
+        The function gets the information from the buttons of the gui in rail_creator mode and implements the necessary operations with waypoints (add/update, delete) in rviz.
+     */
+    void edgeCmdCallback(const navigation_rail::EdgeCmd::ConstPtr& cmd);
+
+    //! plannerCmdCallback function. 
+    /*!
+        /param cmd is the integer value. This value relates to the unique id of the goal waypoint where the robot should go.
+        The function gets the goal waypoint and try to construct the shortest path.
+        If path found it will publish it, otherwise it wil show message "No path found". 
+     */
+    void plannerCmdCallback(const std_msgs::Int32::ConstPtr& cmd);
+
+    //! goalCallback function. 
+    /*!
+        /param cmd is the 2D pose (x, y) of the goal position where the robot should go.
+        The function reads 2D pose from the "/goal" topic and then tries to construct the shortest path through graph to this point.
+        It is used for "2D Nav Goal" button in rviz. 
+     */
+    void goalCallback(const geometry_msgs::PoseStamped::ConstPtr& msg);
+    
+    //! planToVertex function. 
+    /*!
+        /param to is the key_id to the goal position.
+        /param splited_path  is the vector of segments of the path with different robot motion direction.
+        /return true/false.
+        The function gets the goal position and plans the path to this position. If there is fesible path it will split it on segments with different motion direction and return true, otherwise it will return false. 
+     */
+    bool planToVertex(VertexKey to, std::vector<trajectory_msgs::waypoints> &splited_path);
+    
+    //! splitPath function. 
+    /*!
+        /param graph_path is the path from robot position to the goal position through the graph.
+        /param splited_path  is the vector of segments of the path with different robot motion direction.
+        The function gets the path and splits it on the segments with different robot motion direction. 
+     */
+    void splitPath(std::shared_ptr<Path> path, std::vector<trajectory_msgs::waypoints> &splited_path);
+    
+    //! pubGraph function. 
+    /*!
+        The function publishes visualisation markers for the graph at the "/graph" topic for rviz.
+     */
+    void pubGraph();
+
+    //RVIZ visualisation functions
+
+    //! pubRvizGraph function. 
+    /*!
+        The function publishes graph to the "/graph_viz" topic.
+     */
+    void pubRvizGraph();
+
+    //! pubRvizPath function. 
+    /*!
+        The function publishes path to goal through the graph in the navigation mode to the "/path_viz" topic.
+     */
+    void pubRvizPath();
+
+    //! pubRvizQuery function. 
+    /*!
+         The function visualizes the goal point with the red dot. It publishes visualisation marker to the "/query_viz" topic.
+     */
+    void pubRvizQuery();
+
+    //! pubRvizRealGraph function. 
+    /*!
+         The function  publishes real robot trajectory into "/trajectory_generated" topic and highlights collisions on the trajectory with yellow and red dots.
+    */
+    void pubRvizRealGraph();
+
+    //! getCurrentRobotPose function. 
+    /*!
+        /param x is a x coordinate of the robot.
+        /param y is a y coordinate of the robot.
+        /param theta is an orientational angle of the robot.
+        The function gets current position of the robot and saves it in x,y, theta variables. 
+     */
+    void getCurrentRobotPose(double &x, double &y, double &theta);
+
+//! goTo function. 
+/*!
+        /param x is a x coordinate.
+        /param x is a y coordinate.
+        /return true/false.
+        The function creates the path through the graph to the point with x, y coordinates. If path is feasible it will return true, otherwise false.
+     */
+    int goTo(double x, double y);
+
+    //! findClosetPoseOnGraph function. 
+    /*!
+        /param x  is the x coordinate of the point for which it is necessary to find closest pose on graph.
+        /param y  is the y coordinate of the point for which it is necessary to find closest pose on graph.
+        /param edge  is a key_id of the closest edge on graph. 
+        /param dist_edge is  a distance to the closest edge. 
+        /param vertex is a closest point on graph.
+        /param dist_vertex is a distance to the closest point.
+        The function gets the coordinates of point (x,y) and finds the closest edge and closest point on graph and distances to them. 
+     */
+    void findClosetPoseOnGraph(double x, double y, EdgeKey &edge, double &dist_edge, VertexKey &vertex, double &dist_vetex);
+
+    //! addInteractiveMarker function. 
+    /*!
+        /param id is a vertex key_id.
+        The function publishes interactive marker at the position of the waypoint with input key_id.
+     */
+    void addInteractiveMarker(VertexKey id);
+
+
+    void processMarkerFedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
+
+//! quat2rpy function. 
+/*!
+    /param x is a x coordinate. 
+    /param y is an y coordinate. 
+    /param z is a z coordinate. 
+    /param w is a w coordinate. 
+    /param roll is an angle around Z axle. 
+    /param pitch is an angle around X axle. 
+    /param yaw is an angle around Y axle.
+    The function transforms quaternion robot coordinate to rpy coordinate.
+ */
+    void quat2rpy(double x, double y, double z, double w, double &roll, double &pitch, double &yaw);
+
+    //! vertex2msg function. 
+    /*!
+        /param in is a pointer on the Vertex information (x,y, theta, name, ID, factor).
+        /param key_id is a unique number for each vertex
+        /param out is a pointer with Vertex information  
+        The function gets the information from the vertices list of <map> and rewrites this information to the output pointer. 
+     */
+    void vertex2msg(Vertex* in, int32_t key_id, navigation_rail::Vertex* out);
+
+    //! vertexUpdateFromMsg function. 
+    /*!
+        /param v  is the Vertex information (x,y, theta, name, ID, factor).
+        The function updates currently existed vertex with new information from the topic "/vertex_cmd".
+     */
+    void vertexUpdateFromMsg(navigation_rail::Vertex v);
+
+    //! edge2msg function. 
+    /*!
+         /param in is a pointer on the Edge information (from, to, motion).
+        /param out is a pointer with Edge information.  
+         The function gets the information from the edge list of <map> and rewrites this information to the output pointer.
+      */
+    void edge2msg(Edge* in, navigation_rail::Edge* out);
+
+    //! edgeUpateFromMsg function. 
+    /*!
+        /param e  is the edge information (from, to, motion).
+        The function updates currently existed edge with new information from the topic "/edge_cmd".
+     */
+    void edgeUpateFromMsg(navigation_rail::Edge e);
+   
+    //extract map
+
+    //! getParameters function. 
+    /*!
+        /param nh is a ROS node handler. 
+        The function include the robot parameters.
+     */
+    void getParameters(ros::NodeHandle &nh);
+
+    //! extractSimpleMap function. 
+    /*!
+       Extract the map to the grid map.
+       /return result occupancy grid map.
+    */
+    AISNavigation::SimpleMap<float>* extractSimpleMap(nav_msgs::OccupancyGrid& map);
+
+/*
+    std::vector<SmartPoint> computeSmartPointOnEdge(navigation_rail::Edge *e);
+*/
+    AISNavigation::SimpleMap<float>* gridmap;//grid map
+
+    //! sendWaypointsRobotContour function. 
+    /*!
+        /param currentPose is a current pose of the waypoint.
+        The function visualises the blue robot contour aroud waypoint.
+        It publishes to the "/robotContour" topic.
+     */
+    void sendWaypointsRobotContour(const SmartPoint currentPose);
+
+    //! pubWaypoints function. 
+    /*!
+       The function publishes segment of the robot path to the "/waypoints" topic and simultaneously removes published segment from query_waypoints_ vector.
+     */
+    void pubWaypoints();
+
+     //! spinOnes function. 
+    /*!
+       The function visualise the goal and the path through the graph in the navigation mode. It is also publish feedback messages for actions.
+     */
+    void spinOnes();
+
+     //! actionWPGoalCallback function. 
+    /*!
+       The function which is responsible for activations actionlib /waypoint_goal.
+     */
+    void actionWPGoalCallback();
+
+  //! actionWPPECallback function. 
+    /*!
+       The function which is responsible for stopping currently executable motion  in actionlib /waypoint_goal.
+     */
+    void actionWPPECallback();
+
+     //! actionNGGoalCallback function. 
+    /*!
+       The function which is responsible for activations actionlib /nav_goal.
+     */
+    void actionNGGoalCallback();
+
+    //! actionWPGoalCallback function. 
+    /*!
+        The function which is responsible for stopping currently executable motion  in actionlib /nav_goal.
+     */
+    void actionNGPECallback();
+
+ //! stoppedMessageCallback function. 
+    /*!
+        /param msg is an AutonomousStoppedMessage value.
+        The function provides feedback for actions. It also publishes next segment of the path based on the messages which it receives from the motorcontrols.
+     */
+    void stoppedMessageCallback(const trajectory_msgs::AutonomousStoppedMessage::ConstPtr& msg);
+
+    trajectory_msgs::waypoints waypoints_;
+    std::vector<trajectory_msgs::waypoints> query_waypoints_;
+
+    std_msgs::Int32 cmd_;
+    double x_goal_, y_goal_;
+    std::shared_ptr<Path> graphPath_;
+    
+private:
+    ros::NodeHandle nh_, private_nh_;
+    ros::Publisher graph_pub_;
+    ros::Publisher graph_viz_pub_;
+    ros::Publisher graph_path_viz_pub_;
+    ros::Publisher query_viz_pub_;
+    ros::Publisher pub_robot_contour_;
+    ros::Publisher pub_contour;
+    ros::Subscriber vertex_cmd_sup_, edge_cmd_sub_, planner_cmd_sub_, goal_sub_;
+
+    ros::Publisher vis_pub_;
+    ros::Publisher waypoint_pub_;
+
+    bool planning_mode_;
+
+
+    tf::TransformListener listener_;
+    
+    std::vector<double> vertex_dist_; //Euclidean distance between each vertex and robot pose
+
+    interactive_markers::InteractiveMarkerServer* marker_server_;
+    std::map<std::string, VertexKey> marker_name_2_vertexkey_;
+
+    std::string name_;
+    std::string folder_path_;
+
+    //trajectory planning
+    TrajectoryPlannerConfig trajplanConfig;
+    GenericTrajectoryGenerator* trajgen;
+
+
+    std::map<std::string, unsigned int> string_id_mapping_;
+
+    std::vector<QBOptimizationPoint>* constrainedPoints_;
+
+    ParametricPath* path_;
+    std::vector<ParametricPath> real_graph_;
+    std::vector<std::vector<SmartPoint> > edgePoints_;
+
+    // Action server and waypoint
+    actionlib::SimpleActionServer<navigation_actions::waypointAction> as_wp_;
+    navigation_actions::waypointFeedback wp_feedback_;
+    navigation_actions::waypointResult wp_result_;
+
+    // Action server and nav goal reached feedback
+    actionlib::SimpleActionServer<navigation_actions::NavGoalAction> as_ng_;
+    navigation_actions::NavGoalFeedback ng_feedback_;
+    navigation_actions::NavGoalResult ng_result_;
+
+    ros::Subscriber result_sub_;
+
+
+    ros::ServiceClient stop_robot_;
+
+};
+
+#endif	/* RAILWRAPPER_H */
+
