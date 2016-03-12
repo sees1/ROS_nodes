@@ -89,16 +89,6 @@ public:
     void pubRvizGraph();
 
 
-    //! addInteractiveMarker function. 
-    /*!
-        /param id is a point key_id.
-        The function publishes interactive marker at the position of the waypoint with input key_id.
-     */
-   // void addInteractiveMarker(PointKey id);
-
-
-
-
     //! point2msg function. 
     /*!
         /param in is a pointer on the Point information (x,y, name).

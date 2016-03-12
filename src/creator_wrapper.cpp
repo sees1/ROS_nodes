@@ -172,7 +172,6 @@ void CreatorWrapper::edgeUpateFromMsg(graph_planner::Edge e) {
 
         if (e_ptr->weight() != e.weight) {
               e_ptr->setWeight(e.weight);
-           // edge_ptr->weight_ = e.weight;
         }
 
     }
@@ -253,7 +252,7 @@ void CreatorWrapper::pubRvizGraph() {
         p.y = to->y_;
         p.z = 0;
         marker.points.push_back(p);
-        ma.markers.push_back(marker);
+        ma.markers.push_back(marker);       
     }
 
     graph_viz_pub_.publish(ma);
@@ -269,7 +268,7 @@ void RailWrapper::pubRvizPath() {
     visualization_msgs::MarkerArray ma;
     visualization_msgs::Marker marker;
 
-    marker.header.frame_id = "/map";
+    marker.header.frame_id = "map";
     marker.id = 0;
     marker.type = visualization_msgs::Marker::SPHERE;
     marker.action = visualization_msgs::Marker::ADD;

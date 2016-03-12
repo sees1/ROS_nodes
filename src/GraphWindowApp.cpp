@@ -18,8 +18,8 @@ GraphWindowApp::GraphWindowApp(QWidget *parent) : nh_(){
 
     // Initialize default settings in the boxes
     edgeBox->addItem(QString::fromUtf8("add new edge"));
-    fromPointBox->QComboBox::setCurrentIndex(fromPointBox->findText(""));
-    toPointBox->QComboBox::setCurrentIndex(toPointBox->findText(""));
+    fromBox->QComboBox::setCurrentIndex(fromBox->findText(""));
+    toBox->QComboBox::setCurrentIndex(toBox->findText(""));
 }
 
 
@@ -56,7 +56,8 @@ void GraphWindowApp::deleteSelectedPoint(){
 
 
 void GraphWindowApp::graphCallback(const  graph_planner::GraphStructure::ConstPtr& list){
-list_ = *list;
+    list_ = *list;
+
 
     //point box
     for (unsigned int i = pointBox->count(); i < list->pointList.size(); i++) {
@@ -72,6 +73,7 @@ list_ = *list;
     for (unsigned int i = 0; i < pointBox->count(); i++) {
         std::string name = list->pointList[i].name;
         pointBox->setItemText(i, QString::fromUtf8(name.c_str()));
+    }
 
      //edge box
     indx_from_.clear();
@@ -119,58 +121,97 @@ list_ = *list;
     }
 
     //from box
-    for (unsigned int i = fromPointBox->count(); i < list->pointList.size(); i++) {
+    for (unsigned int i = fromBox->count(); i < list->pointList.size(); i++) {
         std::string name = list->pointList[i].name;
-        fromPointBox->addItem(QString::fromUtf8(name.c_str()));
+        fromBox->addItem(QString::fromUtf8(name.c_str()));
     }
 
-    for (unsigned int i = fromPointBox->count(); i > list->pointList.size(); i--) {
-        fromPointBox->removeItem(fromPointBox->count() - 1);
+    for (unsigned int i = fromBox->count(); i > list->pointList.size(); i--) {
+        fromBox->removeItem(fromBox->count() - 1);
     }
 
 
-    for (unsigned int i = 0; i < fromPointBox->count(); i++) {
+    for (unsigned int i = 0; i < fromBox->count(); i++) {
         std::string name = list->pointList[i].name;
-        fromPointBox->setItemText(i, QString::fromUtf8(name.c_str()));
+        fromBox->setItemText(i, QString::fromUtf8(name.c_str()));
     }
+
     //to box
-    for (unsigned int i = toPointBox->count(); i < list->pointList.size(); i++) {
+    for (unsigned int i = toBox->count(); i < list->pointList.size(); i++) {
         std::string name = list->pointList[i].name;
-        toPointBox->addItem(QString::fromUtf8(name.c_str()));
+        toBox->addItem(QString::fromUtf8(name.c_str()));
     }
 
-    for (unsigned int i = toPointBox->count(); i > list->pointList.size(); i--) {
-        toPointBox->removeItem(toPointBox->count() - 1);
+    for (unsigned int i = toBox->count(); i > list->pointList.size(); i--) {
+        toBox->removeItem(toBox->count() - 1);
     }
 
 
-    for (unsigned int i = 0; i < toPointBox->count(); i++) {
+    for (unsigned int i = 0; i < toBox->count(); i++) {
         std::string name = list->pointList[i].name;
-        toPointBox->setItemText(i, QString::fromUtf8(name.c_str()));
+        toBox->setItemText(i, QString::fromUtf8(name.c_str()));
+
     }
 
     updateEdge(edgeBox->currentIndex());
+ 
+
+
+   //init box
+    for (unsigned int i = initBox->count(); i < list->pointList.size(); i++) {
+        std::string name = list->pointList[i].name;
+        initBox->addItem(QString::fromUtf8(name.c_str()));
+    }
+
+    for (unsigned int i = initBox->count(); i > list->pointList.size(); i--) {
+        initBox->removeItem(initBox->count() - 1);
+    }
+
+
+    for (unsigned int i = 0; i < initBox->count(); i++) {
+        std::string name = list->pointList[i].name;
+        initBox->setItemText(i, QString::fromUtf8(name.c_str()));
+
+    }
+
+
+       //goal box
+    for (unsigned int i = goalBox->count(); i < list->pointList.size(); i++) {
+        std::string name = list->pointList[i].name;
+        goalBox->addItem(QString::fromUtf8(name.c_str()));
+    }
+
+    for (unsigned int i = goalBox->count(); i > list->pointList.size(); i--) {
+        goalBox->removeItem(goalBox->count() - 1);
+    }
+
+
+    for (unsigned int i = 0; i < goalBox->count(); i++) {
+        std::string name = list->pointList[i].name;
+        goalBox->setItemText(i, QString::fromUtf8(name.c_str()));
+
     }
 
 }
 
 void GraphWindowApp::updateEdge(int index) {
     if (index == 0) {
-        fromPointBox->QComboBox::setCurrentIndex(fromPointBox->findText(""));
-        toPointBox->QComboBox::setCurrentIndex(toPointBox->findText(""));
-           weightBox->setValue(1.0);
+        fromBox->QComboBox::setCurrentIndex(fromBox->findText(""));
+        toBox->QComboBox::setCurrentIndex(toBox->findText(""));
+        weightBox->setValue(1.0);
     } else if (index >= 1) {
-        fromPointBox->setCurrentIndex(fromPointBox->findText(QString::fromUtf8(list_.pointList[indx_from_[index - 1]].name.c_str())));
-        toPointBox->setCurrentIndex(toPointBox->findText(QString::fromUtf8(list_.pointList[indx_to_[index - 1]].name.c_str())));
+        fromBox->setCurrentIndex(fromBox->findText(QString::fromUtf8(list_.pointList[indx_from_[index - 1]].name.c_str())));
+        toBox->setCurrentIndex(toBox->findText(QString::fromUtf8(list_.pointList[indx_to_[index - 1]].name.c_str())));
         weightBox->setValue(list_.edgeList[index-1].weight);
     }
 
 }
+
 void GraphWindowApp::addUpdate(){
 
      int index = edgeBox->currentIndex();
-    int index_from = fromPointBox->currentIndex();
-    int index_to = toPointBox->currentIndex();
+    int index_from = fromBox->currentIndex();
+    int index_to = toBox->currentIndex();
     double weight = weightBox->value();
     // add
     if (index == 0 && index_from != index_to) {

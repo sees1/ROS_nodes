@@ -69,7 +69,7 @@ class GraphWindowApp : public QMainWindow, private Ui_GraphWindow {
        Else send command "update_edge" and key_id of edge from "edgeBox" and key_id of points from "fromPointBox" "toPointBox" and 
        to "/edge_cmd" ROS topic after pushing "addUpdateButton".
       */
-    void addUpdate();
+      void addUpdate();
 
      //! updateEdge function. 
      /*!

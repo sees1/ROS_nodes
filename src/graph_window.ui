@@ -71,10 +71,10 @@
           </widget>
          </item>
          <item row="6" column="1" colspan="3">
-          <widget class="QComboBox" name="G"/>
+          <widget class="QComboBox" name="goalBox"/>
          </item>
          <item row="5" column="1" colspan="3">
-          <widget class="QComboBox" name="InitialPoint"/>
+          <widget class="QComboBox" name="initBox"/>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="labl3">
@@ -132,7 +132,7 @@
           </widget>
          </item>
          <item row="5" column="1">
-          <widget class="QComboBox" name="toPointBox"/>
+          <widget class="QComboBox" name="toBox"/>
          </item>
          <item row="7" column="0">
           <widget class="QLabel" name="labl7">
@@ -183,7 +183,7 @@
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="QComboBox" name="fromPointBox"/>
+          <widget class="QComboBox" name="fromBox"/>
          </item>
         </layout>
        </item>
