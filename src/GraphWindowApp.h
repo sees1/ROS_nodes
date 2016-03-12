@@ -30,8 +30,7 @@
 #include <std_msgs/Int16.h>
 #include <ros/publisher.h>
 #include <ros/node_handle.h>
-//Additional libraries
-#include "graph_planner/conversions.h" //convert theta from tf topic
+
 //Add messages
 #include "graph_planner/Point.h"
 #include "graph_planner/Edge.h"
@@ -55,14 +54,6 @@ class GraphWindowApp : public QMainWindow, private Ui_GraphWindow {
      */
     void addNewPoint();
 
-    //! updatePoint function. 
-    /*!
-       Read point key_id from "pointBox".
-       Send message command "update_point" with key_id of point and information 
-       from "xCoord", "yCoord","nameField" - GUI boxes to "/point_cmd" ROS topic.
-     */
-    void updatePoint();
-
     //! deleteSelectedPoint function. 
     /*!
         Read waypoint key_id from "pointBox".
@@ -70,15 +61,35 @@ class GraphWindowApp : public QMainWindow, private Ui_GraphWindow {
      */
     void deleteSelectedPoint();
 
-     //! updatePointbox function. 
+   //! addUpdate function. 
+     /*!
+       Read from "edgeBox".
+       If edgeBox set "add new edge" send command "add_edge" and key_id of points from "fromPointBox" "toPointBox" and 
+        to "/edge_cmd" ROS topic after pushing "addUpdateButton".
+       Else send command "update_edge" and key_id of edge from "edgeBox" and key_id of points from "fromPointBox" "toPointBox" and 
+       to "/edge_cmd" ROS topic after pushing "addUpdateButton".
+      */
+    void addUpdate();
+
+     //! updateEdge function. 
      /*!
         \param index an integer argument.
-        Read index from "pointBox".
-        Set "xCoord", "yCoord","nameField" - GUI boxes with information of waypoint with index from "pointBox".
+        Read index from "edgeBox".
+        Set "fromPointBox", "toPointBox" and "weightBox" with information of edge with index from "edgeBox".
       */
-    void updatePointbox(int);
+    void updateEdge(int);
 
-
+      //! saveGraph function. 
+     /*!
+        Send command "save_graph" to "/edge_cmd" ROS topic after pushing "saveButton".
+      */
+    void saveGraph();
+      //! deleteEdge function. 
+     /*!
+       Read from "edgeBox" key_id of edge.
+       Send command "del_edge" and key_id of edge to "/edge_cmd" ROS topic after pushing "deleteEdgeButton".
+      */
+    void deleteEdge();
 public:
 
     //! A constructor.

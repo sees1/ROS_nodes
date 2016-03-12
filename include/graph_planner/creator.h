@@ -73,8 +73,8 @@ public:
     std::shared_ptr<GraphPoint> getPoint(PointKey k);
     std::shared_ptr<GraphPoint> point2GraphPoint(PointPtr p);
 
-   // std::shared_ptr<GraphEdge> getEdge(EdgeKey k);
-   // std::shared_ptr<GraphEdge> edge2GraphEdge(EdgePtr p);
+  //  std::shared_ptr<GraphEdge> getEdge(EdgeKey k);
+    std::shared_ptr<GraphEdge> edge2GraphEdge(EdgePtr p);
     
     //! loadGraphFromFile function. 
         /*!
@@ -82,7 +82,7 @@ public:
         /param  name is a name of the graph.
         The function load graph from the file.
          */
-   // bool loadGraphFromFile(std::string path, std::string name);
+    bool loadGraphFromFile(std::string path, std::string name);
 
         //! saveGraphToFile function. 
         /*!
@@ -90,7 +90,7 @@ public:
         /param  name is a name of the graph.
         The function save graph from the file.
          */
-   // bool saveGraphToFile(std::string path, std::string name);
+    bool saveGraphToFile(std::string path, std::string name);
 
 
 private:

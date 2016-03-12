@@ -6,327 +6,212 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>839</width>
-    <height>383</height>
+    <width>466</width>
+    <height>372</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="Line" name="line">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>0</x>
       <y>10</y>
-      <width>16</width>
-      <height>271</height>
+      <width>441</width>
+      <height>319</height>
      </rect>
     </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
-   </widget>
-   <widget class="Line" name="line_2">
-    <property name="geometry">
-     <rect>
-      <x>560</x>
-      <y>10</y>
-      <width>16</width>
-      <height>271</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labl8">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>0</y>
-      <width>108</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Graph planning:</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="SaveGraph">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>310</y>
-      <width>791</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Save Graph</string>
-    </property>
-   </widget>
-   <widget class="Line" name="line_3">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>290</y>
-      <width>791</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>20</y>
-      <width>231</width>
-      <height>251</height>
-     </rect>
-    </property>
-    <layout class="QFormLayout" name="formLayout">
-     <property name="fieldGrowthPolicy">
-      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-     </property>
-     <item row="0" column="0" colspan="2">
-      <widget class="QLabel" name="labl2">
-       <property name="text">
-        <string>Edit edges:</string>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="3" column="0" colspan="4">
+          <widget class="QPushButton" name="deleteSelectedPointButton">
+           <property name="text">
+            <string>Delete Selected Point</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="3">
+          <widget class="QLabel" name="labl8">
+           <property name="text">
+            <string>Graph planning:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="labl10">
+           <property name="text">
+            <string> Init:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" colspan="3">
+          <widget class="QLabel" name="labl1">
+           <property name="text">
+            <string>Edit points:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" colspan="4">
+          <widget class="QPushButton" name="newPointButton">
+           <property name="text">
+            <string>New Point</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="labl11">
+           <property name="text">
+            <string>Goal:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1" colspan="3">
+          <widget class="QComboBox" name="G"/>
+         </item>
+         <item row="5" column="1" colspan="3">
+          <widget class="QComboBox" name="InitialPoint"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="labl3">
+           <property name="text">
+            <string>Points:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" colspan="3">
+          <widget class="QComboBox" name="pointBox"/>
+         </item>
+         <item row="7" column="0" colspan="4">
+          <widget class="QPushButton" name="FindPath">
+           <property name="text">
+            <string>Find Path</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="labl9">
+           <property name="text">
+            <string>Result:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1" colspan="3">
+          <widget class="QLineEdit" name="lineResult"/>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="1">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <layout class="QFormLayout" name="formLayout">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="labl2">
+           <property name="text">
+            <string>Edit edges:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="labl6">
+           <property name="text">
+            <string>To:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QComboBox" name="toPointBox"/>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="labl7">
+           <property name="text">
+            <string>weight:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QDoubleSpinBox" name="weightBox">
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" colspan="2">
+          <widget class="QPushButton" name="addUpdateButton">
+           <property name="text">
+            <string>Add/Update Edge</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0" colspan="2">
+          <widget class="QPushButton" name="deleteEdgeButton">
+           <property name="text">
+            <string>Delete Selected Edge</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="edgeBox"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="labl4">
+           <property name="text">
+            <string>Edges:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="labl5">
+           <property name="text">
+            <string>From:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QComboBox" name="fromPointBox"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="2">
-      <widget class="QPushButton" name="newEdge">
+     <item>
+      <widget class="QPushButton" name="saveButton">
        <property name="text">
-        <string>NewEdge</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="labl5">
-       <property name="text">
-        <string>From:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="fromPointBox"/>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="labl6">
-       <property name="text">
-        <string>To:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QComboBox" name="toPointBox"/>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="labl4">
-       <property name="text">
-        <string>Edges:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QComboBox" name="edgeBox"/>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="labl7">
-       <property name="text">
-        <string>weight:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QDoubleSpinBox" name="weight">
-       <property name="decimals">
-        <number>3</number>
-       </property>
-       <property name="singleStep">
-        <double>0.010000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0" colspan="2">
-      <widget class="QPushButton" name="updateWeight">
-       <property name="text">
-        <string>UpdateWeight</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0" colspan="2">
-      <widget class="QPushButton" name="deleteSelectedEdge">
-       <property name="text">
-        <string>Delete Selected Edge</string>
+        <string>Save Graph</string>
        </property>
       </widget>
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>580</x>
-      <y>40</y>
-      <width>239</width>
-      <height>151</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="2" column="1" colspan="2">
-      <widget class="QComboBox" name="G"/>
-     </item>
-     <item row="3" column="0" colspan="3">
-      <widget class="QPushButton" name="FindPath">
-       <property name="text">
-        <string>FindPath</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="labl11">
-       <property name="text">
-        <string>Goal:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="labl10">
-       <property name="text">
-        <string> Init:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1" colspan="2">
-      <widget class="QComboBox" name="InitialPoint"/>
-     </item>
-     <item row="4" column="0" colspan="2">
-      <widget class="QLabel" name="labl9">
-       <property name="text">
-        <string>Result:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QLineEdit" name="lineResult"/>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>20</y>
-      <width>232</width>
-      <height>250</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="2" column="1" colspan="2">
-      <widget class="QComboBox" name="pointBox"/>
-     </item>
-     <item row="7" column="0" colspan="3">
-      <widget class="QPushButton" name="deleteSelectedPointButton">
-       <property name="text">
-        <string>Delete Selected Point</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
-      <widget class="QLineEdit" name="nameField"/>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="labl3">
-       <property name="text">
-        <string>Points:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0" colspan="3">
-      <widget class="QPushButton" name="updatePointButton">
-       <property name="text">
-        <string>UpdatePoint</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" colspan="2">
-      <widget class="QLabel" name="labl1">
-       <property name="text">
-        <string>Edit points:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="lbl13">
-       <property name="text">
-        <string>Name:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="labl14">
-       <property name="text">
-        <string>        x:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="3">
-      <widget class="QPushButton" name="newPointButton">
-       <property name="text">
-        <string>NewPoint</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
-      <widget class="QDoubleSpinBox" name="yCoord">
-       <property name="decimals">
-        <number>3</number>
-       </property>
-       <property name="singleStep">
-        <double>0.010000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2">
-      <widget class="QDoubleSpinBox" name="xCoord">
-       <property name="decimals">
-        <number>3</number>
-       </property>
-       <property name="singleStep">
-        <double>0.010000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="labl15">
-       <property name="text">
-        <string>        y:</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <zorder>SaveGraph</zorder>
-   <zorder>line_3</zorder>
-   <zorder>layoutWidget</zorder>
-   <zorder>layoutWidget</zorder>
-   <zorder>layoutWidget</zorder>
-   <zorder>line</zorder>
-   <zorder>line_2</zorder>
-   <zorder>labl8</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>839</width>
+     <width>466</width>
      <height>25</height>
     </rect>
    </property>

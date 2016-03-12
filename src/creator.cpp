@@ -57,7 +57,7 @@ int32_t Creator::addPoint(double x, double y, std::string name) {
 
     return point_key_id;
 }
-/*
+
 int32_t Creator::addEdge(int32_t from_point, int32_t to_point, double weight) {
 
 
@@ -80,7 +80,7 @@ int32_t Creator::addEdge(int32_t from_point, int32_t to_point, double weight) {
     return Graph<int32_t>::addEdge(edge_casted, edge_key_id);
 }
 
-*/
+
 
 std::shared_ptr<GraphPoint> Creator::getPoint(PointKey k) {
     auto it = points_->find(k);
@@ -94,6 +94,12 @@ std::shared_ptr<GraphPoint> Creator::getPoint(PointKey k) {
 std::shared_ptr<GraphPoint> Creator::point2GraphPoint(PointPtr p) {
     return std::dynamic_pointer_cast<GraphPoint> (p);
 }
+
+std::shared_ptr<GraphEdge> Creator::edge2GraphEdge(EdgePtr p) {
+    return std::dynamic_pointer_cast<GraphEdge> (p);
+}
+
+
 /*
 std::shared_ptr<GraphEdge> Rail::getEdge(EdgeKey k) {
     auto it = edges_->find(k);
@@ -103,26 +109,23 @@ std::shared_ptr<GraphEdge> Rail::getEdge(EdgeKey k) {
 
     return nullptr;
 }
+*/
 
-std::shared_ptr<RailEdge> Rail::edge2RailEdge(EdgePtr p) {
-    return std::dynamic_pointer_cast<RailEdge> (p);
-}
-/*
-bool Rail::loadGraphFromFile(std::string path, std::string name) {
 
-    std::ifstream file_stream_vertex(path +"/"+ name + "_vertex.txt");
-    if (file_stream_vertex.is_open()) { // check if file exsist
+bool Creator::loadGraphFromFile(std::string path, std::string name) {
+
+    std::ifstream file_stream_points(path +"/"+ name + "_points.txt");
+    if (file_stream_points.is_open()) { // check if file exsist
          std::string line;
-         while (std::getline(file_stream_vertex, line)) {
-            std::istringstream file_stream_vertex(line);
+         while (std::getline(file_stream_points, line)) {
+            std::istringstream file_stream_points(line);
             std::string name;
-             double x, y, theta, factor;
-             int id;
+             double x, y;
              
-            file_stream_vertex>>name>>x>>y>>theta>>factor>>id;
-             addVertex(x,y,theta,factor,name,id);
+            file_stream_points>>name>>x>>y;
+             addPoint(x,y,name);
          }
-         file_stream_vertex.close();
+         file_stream_points.close();
     }else{
        return false;
     }
@@ -134,10 +137,10 @@ bool Rail::loadGraphFromFile(std::string path, std::string name) {
             std::istringstream file_stream_edge(line);
             
              int from, to;
-             double weight=1.0;//need to change in future!!!
-             int motion;
-            file_stream_edge>>from>>to>>motion;
-             addEdge(from,to,weight,motion);
+             double weight;
+
+            file_stream_edge>>from>>to>>weight;
+             addEdge(from,to,weight);
          }
          file_stream_edge.close();
      
@@ -148,17 +151,17 @@ bool Rail::loadGraphFromFile(std::string path, std::string name) {
 
 }
 
-bool Rail::saveGraphToFile(std::string path, std::string name) {
+bool Creator::saveGraphToFile(std::string path, std::string name) {
 
-    std::string vertex_file_name = path + "/"+ name + "_vertex.txt";
+    std::string points_file_name = path + "/"+ name + "_points.txt";
     std::string edge_file_name = path + "/" +name + "_edge.txt";
     //start writing vertices
     std::ofstream GraphFile;
-    GraphFile.open (vertex_file_name, std::ios::out | std::ios::trunc );
+    GraphFile.open (points_file_name, std::ios::out | std::ios::trunc );
     if (GraphFile.is_open()){ 
-         for(auto it = vertices_->begin(); it != vertices_->end(); it++){
-              RailVertex* v_ptr = dynamic_cast<RailVertex*> (it->second.get());
-              GraphFile<<v_ptr->name_<<" "<<v_ptr->x_<<" "<<v_ptr->y_<<" "<<v_ptr->theta_<<" "<<v_ptr->factor_<<" "<<v_ptr->id_name_<<"\n";
+         for(auto it = points_->begin(); it != points_->end(); it++){
+              GraphPoint* v_ptr = dynamic_cast<GraphPoint*> (it->second.get());
+              GraphFile<<v_ptr->name_<<" "<<v_ptr->x_<<" "<<v_ptr->y_<<"\n";
           
         } 
     }   
@@ -170,12 +173,11 @@ bool Rail::saveGraphToFile(std::string path, std::string name) {
   GraphFile.open (edge_file_name, std::ios::out | std::ios::trunc );
       if (GraphFile.is_open()){ 
             for(auto it = edges_->begin(); it != edges_->end(); it++){  
-              RailEdge* e_ptr = dynamic_cast<RailEdge*> (it->second.get());   
-              GraphFile<<it->second.get()->from()->id()<<" "<<it->second.get()->to()->id()<<" "<<(double)e_ptr->motion_<<"\n";
+              //GraphEdge* e_ptr = dynamic_cast<GraphEdge*> (it->second.get());   
+              GraphFile<<it->second.get()->from()->id()<<" "<<it->second.get()->to()->id()<<" "<<it->second.get()->weight()<<"\n";
           }     
        }
     GraphFile.close();
 // if saved successfully return ture
     return true;
 }
-*/

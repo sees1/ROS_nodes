@@ -21,7 +21,7 @@ CreatorWrapper::CreatorWrapper() : nh_() {
     graph_viz_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("/graph_viz", 1);
     
     point_cmd_sub_ = nh_.subscribe <graph_planner::PointCmd> ("/point_cmd", 1, &CreatorWrapper::pointCmdCallback, this);
-   // edge_cmd_sub_ = nh_.subscribe<graph_planner::EdgeCmd>("/edge_cmd", 1, &CreatorWrapper::edgeCmdCallback, this);
+    edge_cmd_sub_ = nh_.subscribe<graph_planner::EdgeCmd>("/edge_cmd", 1, &CreatorWrapper::edgeCmdCallback, this);
 
     marker_server_ = new interactive_markers::InteractiveMarkerServer("point_marker");
 }
@@ -33,9 +33,9 @@ void CreatorWrapper::init() {
 
     clear();
 
-/*
-    name_ = "stamina"; 
-    folder_path_ = ros::package::getPath("navigation_rail"); 
+
+    name_ = "graph"; 
+    folder_path_ = ros::package::getPath("graph_planner"); 
 
     bool loaded = loadGraphFromFile(folder_path_, name_);
     if (loaded ) {
@@ -43,12 +43,12 @@ void CreatorWrapper::init() {
         pubGraph();
 
         //add interactive marker for nodes
-        for (auto it = vertices_->begin(); it != vertices_->end(); it++) {
+        for (auto it = points_->begin(); it != points_->end(); it++) {
             addInteractiveMarker(it->first);
         }
 
     }
-*/
+
   
 }
 
@@ -75,40 +75,19 @@ void CreatorWrapper::pointCmdCallback(const graph_planner::PointCmd::ConstPtr& c
         marker_server_->erase(std::to_string(cmd->pointInfo.key_id));
         marker_server_->applyChanges();
     }
-/*
-    // update values
-    if (cmd->cmd == VertexCMD::update_waypoint) { // change cmd value
-        std::cerr << "Update selected Vertex" << std::endl;
-        vertexUpdateFromMsg(cmd->vertexInfo);
-        //interactive marker
-        geometry_msgs::Pose pose;
-        pose.position.x = cmd->vertexInfo.x;
-        pose.position.y = cmd->vertexInfo.y;
-        pose.position.z = cmd->vertexInfo.factor / 10.0; //why divide on 10?
-        pose.orientation = tf::createQuaternionMsgFromYaw(cmd->vertexInfo.theta);
-        marker_server_->setPose(std::to_string(cmd->vertexInfo.key_id), pose);
-        visualization_msgs::InteractiveMarker marker;
-        marker_server_->get(std::to_string(cmd->vertexInfo.key_id), marker);
-        marker.description = cmd->vertexInfo.name;
-        marker_server_->insert(marker);
-        marker_server_->applyChanges();
-    }
-*/
+
     pubGraph();
     pubRvizGraph();
 }
-/*
-void RailWrapper::edgeCmdCallback(const navigation_rail::EdgeCmd::ConstPtr& cmd) {
+
+void CreatorWrapper::edgeCmdCallback(const graph_planner::EdgeCmd::ConstPtr& cmd) {
 
     // add edge to the graph
     if (cmd->cmd == EdgeCMD::add_edge) {
         std::cerr << "Add new Edge" << std::endl;
-        double weight = 1.0;
-        std::cerr << "Motion: " << (int8_t) cmd->edgeInfo.motion << std::endl;
-        addEdge(cmd->edgeInfo.from_vertex,
-                cmd->edgeInfo.to_vertex,
-                weight,
-                cmd->edgeInfo.motion
+        addEdge(cmd->edgeInfo.from_point,
+                cmd->edgeInfo.to_point,
+                cmd->edgeInfo.weight
                 );
     }
 
@@ -129,7 +108,7 @@ void RailWrapper::edgeCmdCallback(const navigation_rail::EdgeCmd::ConstPtr& cmd)
     pubGraph();
     pubRvizGraph();
 }
-*/
+
 void CreatorWrapper::pubGraph() {
 
     graph_planner::GraphStructure msg;
@@ -140,13 +119,13 @@ void CreatorWrapper::pubGraph() {
         msg.pointList.push_back(point);
 
     }
-/*
+
     for (auto it = edges_->begin(); it != edges_->end(); it++) {
-        navigation_rail::Edge edge;
+        graph_planner::Edge edge;
         edge2msg(it->second.get(), &edge);
         msg.edgeList.push_back(edge);
     }
-*/
+
     graph_pub_.publish(msg);
 }
 
@@ -169,33 +148,36 @@ void CreatorWrapper::pointUpdateFromMsg(graph_planner::Point v) {
         v_ptr->name_ = v.name;
     }
 }
-/*
-void RailWrapper::edge2msg(Edge* in, navigation_rail::Edge* out) {
-    out->from_vertex = in->from()->id();
-    out->to_vertex = in->to()->id();
+
+void CreatorWrapper::edge2msg(Edge* in, graph_planner::Edge* out) {
+    out->from_point = in->from()->id();
+    out->to_point = in->to()->id();
     out->key_id = in->id();
-    RailEdge* e_ptr = dynamic_cast<RailEdge*> (in);
-    out->motion = e_ptr->motion_;
+    out->weight = in->weight();
 }
 
-void RailWrapper::edgeUpateFromMsg(navigation_rail::Edge e) {
+void CreatorWrapper::edgeUpateFromMsg(graph_planner::Edge e) {
 
     auto it = edges_->find(e.key_id);
     if (it != edges_->end()) {
-        RailEdge* e_ptr = dynamic_cast<RailEdge*> (it->second.get());
-        e_ptr->motion_ = e.motion;
+       GraphEdge* e_ptr = dynamic_cast<GraphEdge*> (it->second.get());
 
-        if (e_ptr->from()->id() != e.from_vertex) {
-            edgeChangeFrom(e.key_id, e.from_vertex);
+        if (e_ptr->from()->id() != e.from_point) {
+            edgeChangeFrom(e.key_id, e.from_point);
         }
 
-        if (e_ptr->to()->id() != e.to_vertex) {
-            edgeChangeTo(e.key_id, e.to_vertex);
+        if (e_ptr->to()->id() != e.to_point) {
+            edgeChangeTo(e.key_id, e.to_point);
         }
+
+        if (e_ptr->weight() != e.weight) {
+              e_ptr->setWeight(e.weight);
+           // edge_ptr->weight_ = e.weight;
+        }
+
     }
 
 }
-*/
 
 
 void CreatorWrapper::pubRvizGraph() {
@@ -241,7 +223,7 @@ void CreatorWrapper::pubRvizGraph() {
         ma.markers.push_back(marker);
     }
 
-/*
+
     marker.type = visualization_msgs::Marker::ARROW;
     marker.pose.position.x = 0;
     marker.pose.position.y = 0;
@@ -256,69 +238,24 @@ void CreatorWrapper::pubRvizGraph() {
         marker.scale.y = 0.15;
         marker.scale.z = 0.1;
         marker.color.a = 0.4;
-        marker.color.r = 0.2;
-        marker.color.g = 0.2;
+        marker.color.r = 0.0;
+        marker.color.g = 1.0;
         marker.color.b = 1.0;
-        auto e = edge2RailEdge(it->second);
+        auto e = edge2GraphEdge(it->second);
         geometry_msgs::Point p;
-        auto from = vertex2RailVertex(e->from());
-        auto to = vertex2RailVertex(e->to());
+        auto from = point2GraphPoint(e->from());
+        auto to = point2GraphPoint(e->to());
         p.x = from->x_;
         p.y = from->y_;
         p.z = 0;
         marker.points.push_back(p);
         p.x = to->x_;
-         p.y = to->y_;
+        p.y = to->y_;
         p.z = 0;
         marker.points.push_back(p);
-        ma.markers.push_back(marker);
-        //add motion direction
-        marker.points.clear();
-        marker.id++;
-        marker.scale.x = 0.07;
-        marker.scale.y = 0.25;
-        marker.scale.z = 0.10;
-        marker.color.a = 1.0;
-        marker.color.r = 0.0;
-        marker.color.g = 0.0;
-        marker.color.b = 1.0;
-        //middle point in edge
-
-        p.x = (from->x_ + to->x_) / 2;
-        p.y = (from->y_ + to->y_) / 2;
-        p.z = 0;
-        marker.points.push_back(p);
-        if (e->motion_ == motion::forward) {
-            p.x = (p.x + to->x_) / 2;
-            p.y = (p.y + to->y_) / 2;
-            p.z = 0;
-            marker.points.push_back(p);
-
-        } else if (e->motion_ == motion::backward) {
-            p.x = (p.x + from->x_) / 2;
-            p.y = (p.y + from->y_) / 2;
-            p.z = 0;
-            marker.points.push_back(p);
-        } else if (e->motion_ == motion::forward_backward) {
-            geometry_msgs::Point t;
-            //first arrow forward
-            t.x = (p.x + to->x_) / 2;
-            t.y = (p.y + to->y_) / 2;
-            t.z = 0;
-            marker.points.push_back(t);
-            ma.markers.push_back(marker);
-            marker.points.clear();
-            marker.id++;
-            //second arrow backward
-            marker.points.push_back(p);
-            t.x = (p.x + from->x_) / 2;
-            t.y = (p.y + from->y_) / 2;
-            t.z = 0;
-            marker.points.push_back(t);
-        }
         ma.markers.push_back(marker);
     }
-*/
+
     graph_viz_pub_.publish(ma);
 }
 

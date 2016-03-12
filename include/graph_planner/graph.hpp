@@ -156,8 +156,6 @@ public:
 
     virtual void clear();
 
-  //  virtual void printGraphText();
-
     virtual PointSetPtr points() {
         return points_;
     }
@@ -166,16 +164,16 @@ public:
         return edges_;
     }
 
-   virtual bool addPoint(PointKey k, PointPtr v);
+    virtual bool addPoint(PointKey k, PointPtr v);
     virtual bool removePoint(PointKey k);
+    virtual EdgeKey addEdge(EdgePtr e, EdgeKey edge_id);
+    virtual bool removeEdge(EdgeKey id);
+    virtual bool edgeChangeTo(EdgeKey edge_id, PointKey to_id);
+    virtual bool edgeChangeFrom(EdgeKey edge_id, PointKey from_id);
+
 ///////////////////////////////////////////////////
 /*  
-    virtual EdgeKey addEdge(EdgePtr e, EdgeKey edge_id);
 
-    virtual bool removeEdge(EdgeKey id);
-
-    virtual bool edgeChangeTo(EdgeKey edge_id, VertexKey to_id);
-    virtual bool edgeChangeFrom(EdgeKey edge_id, VertexKey from_id);
 
  
   

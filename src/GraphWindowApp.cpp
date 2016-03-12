@@ -8,9 +8,18 @@ GraphWindowApp::GraphWindowApp(QWidget *parent) : nh_(){
 
     //Connect point buttons in GUI with functions
     connect(newPointButton, SIGNAL(clicked()), this, SLOT(addNewPoint()));
-    connect(updatePointButton, SIGNAL(clicked()), this, SLOT(updatePoint()));
     connect(deleteSelectedPointButton, SIGNAL(clicked()), this, SLOT(deleteSelectedPoint()));
-    connect(pointBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePointbox(int)));
+
+    //Connect Edge buttons in GUI with functions
+    connect(edgeBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateEdge(int)));
+    connect(addUpdateButton, SIGNAL(clicked()), this, SLOT(addUpdate()));
+    connect(deleteEdgeButton, SIGNAL(clicked()), this, SLOT(deleteEdge()));
+    connect(saveButton, SIGNAL(clicked()), this, SLOT(saveGraph()));
+
+    // Initialize default settings in the boxes
+    edgeBox->addItem(QString::fromUtf8("add new edge"));
+    fromPointBox->QComboBox::setCurrentIndex(fromPointBox->findText(""));
+    toPointBox->QComboBox::setCurrentIndex(toPointBox->findText(""));
 }
 
 
@@ -34,22 +43,6 @@ void GraphWindowApp::addNewPoint(){
     cmd_point_pub_.publish(msg);
 }
 
-void GraphWindowApp::updatePoint(){
-
- int index = pointBox->currentIndex();
-
-    if (index >= 0 && index < list_.pointList.size()) {
-        graph_planner::PointCmd msg;
-        msg.cmd = PointCMD::update_point;
-        msg.pointInfo.key_id = list_.pointList[index].key_id;
-        msg.pointInfo.x = xCoord->value();
-        msg.pointInfo.y = yCoord->value();
-        std::string name = nameField->text().toStdString();
-        msg.pointInfo.name = name;;
-        cmd_point_pub_.publish(msg);
-    }
-
-}
 
 void GraphWindowApp::deleteSelectedPoint(){
 
@@ -61,14 +54,6 @@ void GraphWindowApp::deleteSelectedPoint(){
 
 }
 
-void GraphWindowApp::updatePointbox(int index){
-
-        if (index >= 0) {
-        xCoord->setValue(list_.pointList[index].x);
-        yCoord->setValue(list_.pointList[index].y);
-        nameField->setText(QString::fromUtf8(list_.pointList[index].name.c_str()));
-    }
-}
 
 void GraphWindowApp::graphCallback(const  graph_planner::GraphStructure::ConstPtr& list){
 list_ = *list;
@@ -87,12 +72,143 @@ list_ = *list;
     for (unsigned int i = 0; i < pointBox->count(); i++) {
         std::string name = list->pointList[i].name;
         pointBox->setItemText(i, QString::fromUtf8(name.c_str()));
+
+     //edge box
+    indx_from_.clear();
+    indx_to_.clear();
+    for (unsigned int i = edgeBox->count(); i < list->edgeList.size() + 1; i++) {
+        std::string from_name;
+        std::string to_name;
+        std::string name;
+
+        for (unsigned int j = 0; j < list->pointList.size(); j++) {
+            if (list->pointList[j].key_id == list->edgeList[i - 1].from_point) {
+                from_name = list->pointList[j].name;
+
+            }
+            if (list->pointList[j].key_id == list->edgeList[i - 1].to_point) {
+                to_name = list->pointList[j].name;
+
+            }
+        }
+        name = "from " + from_name + " to " + to_name;
+        edgeBox->addItem(QString::fromUtf8(name.c_str()));
+        std::cerr << "Edge works: " << list->edgeList.size() << std::endl;
     }
 
-    updatePointbox(pointBox->currentIndex());
+    for (unsigned int i = edgeBox->count(); i > list->edgeList.size() + 1; i--) {
+        edgeBox->removeItem(edgeBox->count() - 1);
+    }
 
+    for (unsigned int i = 1; i < edgeBox->count(); i++) {
+        std::string from_name;
+        std::string to_name;
+        std::string name;
+        for (unsigned int j = 0; j < list->pointList.size(); j++) {
+            if (list->pointList[j].key_id == list->edgeList[i - 1].from_point) {
+                from_name = list->pointList[j].name;
+                indx_from_.push_back(j);
+            }
+            if (list->pointList[j].key_id == list->edgeList[i - 1].to_point) {
+                to_name = list->pointList[j].name;
+                indx_to_.push_back(j);
+            }
+        }
+        name = "from " + from_name + " to " + to_name;
+        edgeBox->setItemText(i, QString::fromUtf8(name.c_str()));
+    }
+
+    //from box
+    for (unsigned int i = fromPointBox->count(); i < list->pointList.size(); i++) {
+        std::string name = list->pointList[i].name;
+        fromPointBox->addItem(QString::fromUtf8(name.c_str()));
+    }
+
+    for (unsigned int i = fromPointBox->count(); i > list->pointList.size(); i--) {
+        fromPointBox->removeItem(fromPointBox->count() - 1);
+    }
+
+
+    for (unsigned int i = 0; i < fromPointBox->count(); i++) {
+        std::string name = list->pointList[i].name;
+        fromPointBox->setItemText(i, QString::fromUtf8(name.c_str()));
+    }
+    //to box
+    for (unsigned int i = toPointBox->count(); i < list->pointList.size(); i++) {
+        std::string name = list->pointList[i].name;
+        toPointBox->addItem(QString::fromUtf8(name.c_str()));
+    }
+
+    for (unsigned int i = toPointBox->count(); i > list->pointList.size(); i--) {
+        toPointBox->removeItem(toPointBox->count() - 1);
+    }
+
+
+    for (unsigned int i = 0; i < toPointBox->count(); i++) {
+        std::string name = list->pointList[i].name;
+        toPointBox->setItemText(i, QString::fromUtf8(name.c_str()));
+    }
+
+    updateEdge(edgeBox->currentIndex());
+    }
 
 }
+
+void GraphWindowApp::updateEdge(int index) {
+    if (index == 0) {
+        fromPointBox->QComboBox::setCurrentIndex(fromPointBox->findText(""));
+        toPointBox->QComboBox::setCurrentIndex(toPointBox->findText(""));
+           weightBox->setValue(1.0);
+    } else if (index >= 1) {
+        fromPointBox->setCurrentIndex(fromPointBox->findText(QString::fromUtf8(list_.pointList[indx_from_[index - 1]].name.c_str())));
+        toPointBox->setCurrentIndex(toPointBox->findText(QString::fromUtf8(list_.pointList[indx_to_[index - 1]].name.c_str())));
+        weightBox->setValue(list_.edgeList[index-1].weight);
+    }
+
+}
+void GraphWindowApp::addUpdate(){
+
+     int index = edgeBox->currentIndex();
+    int index_from = fromPointBox->currentIndex();
+    int index_to = toPointBox->currentIndex();
+    double weight = weightBox->value();
+    // add
+    if (index == 0 && index_from != index_to) {
+        graph_planner::EdgeCmd msg;
+        msg.cmd = EdgeCMD::add_edge;
+        msg.edgeInfo.from_point = list_.pointList[index_from].key_id;
+        msg.edgeInfo.to_point = list_.pointList[index_to].key_id;
+        msg.edgeInfo.weight = weight;
+        cmd_edge_pub_.publish(msg);
+    }//update
+    else if (index >= 1 && index_from != index_to) {
+        graph_planner::EdgeCmd msg;
+        msg.cmd = EdgeCMD::update_edge;
+        msg.edgeInfo.key_id = list_.edgeList[index - 1].key_id;
+        msg.edgeInfo.from_point = list_.pointList[index_from].key_id;
+        msg.edgeInfo.to_point = list_.pointList[index_to].key_id;
+        msg.edgeInfo.weight = weight;
+        cmd_edge_pub_.publish(msg);
+    }
+}
+
+void GraphWindowApp::deleteEdge(){
+
+ int index = edgeBox->currentIndex();
+    if (index > 0) {
+        graph_planner::EdgeCmd msg;
+        msg.cmd =EdgeCMD::del_edge;
+        msg.edgeInfo.key_id = list_.edgeList[index - 1].key_id;
+        cmd_edge_pub_.publish(msg);
+    }
+}
+
+void GraphWindowApp::saveGraph(){
+    graph_planner::EdgeCmd msg;
+    msg.cmd = EdgeCMD::save_graph;
+    cmd_edge_pub_.publish(msg);
+}
+
 
 int main(int argc, char** argv) {
   ros::init(argc, argv, "graph_test_gui", ros::init_options::AnonymousName);

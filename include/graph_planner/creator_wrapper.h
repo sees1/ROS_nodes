@@ -15,8 +15,6 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Int32.h>
 
-//Additional libraries
-#include "graph_planner/conversions.h" //convert theta from tf topic
 //Add messages
 #include "graph_planner/Point.h"
 #include "graph_planner/Edge.h"
@@ -147,6 +145,8 @@ public:
     void processMarkerFedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr& feedback);
     
 private:
+    std::string name_;
+    std::string folder_path_ ;
     ros::NodeHandle nh_, private_nh_;
     ros::Publisher graph_pub_;
     ros::Publisher graph_viz_pub_;
