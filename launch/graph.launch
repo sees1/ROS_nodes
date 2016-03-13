@@ -1,8 +1,0 @@
-<launch>
-
-    <include file="$(find graph_planner)/launch/rviz.launch" />    
-
-   <node pkg="graph_planner" type="graph_test_gui" name="graph_test_gui" output="screen"/>
-    <node pkg="graph_planner" type="creator" name="creator" output="screen"/>
-    
-</launch>

@@ -1,3 +1,0 @@
-<launch>
-	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find graph_planner)/rviz/config_rviz.rviz" />
-</launch>
