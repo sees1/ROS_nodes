@@ -16,6 +16,9 @@ GraphWindowApp::GraphWindowApp(QWidget *parent) : nh_(){
     connect(deleteEdgeButton, SIGNAL(clicked()), this, SLOT(deleteEdge()));
     connect(saveButton, SIGNAL(clicked()), this, SLOT(saveGraph()));
 
+    //Connect planner button
+    connect(findPathButton, SIGNAL(clicked()), this, SLOT(findPath()));
+
     // Initialize default settings in the boxes
     edgeBox->addItem(QString::fromUtf8("add new edge"));
     fromBox->QComboBox::setCurrentIndex(fromBox->findText(""));
@@ -31,7 +34,9 @@ void GraphWindowApp::init() {
     graph_sub_ = nh_.subscribe<graph_planner::GraphStructure> ("/graph", 1, &GraphWindowApp::graphCallback, this);
     cmd_point_pub_ = nh_.advertise < graph_planner::PointCmd> ("point_cmd", 0);
     cmd_edge_pub_ = nh_.advertise < graph_planner::EdgeCmd> ("edge_cmd", 0);     
+    plan_pub_ = nh_.advertise < graph_planner::Plan> ("plan_cmd", 0);
 }
+
 
 void GraphWindowApp::addNewPoint(){
 
@@ -249,6 +254,17 @@ void GraphWindowApp::saveGraph(){
     msg.cmd = EdgeCMD::save_graph;
     cmd_edge_pub_.publish(msg);
 }
+
+void GraphWindowApp::findPath(){
+    int index_init = initBox->currentIndex();
+    int index_goal = goalBox->currentIndex();
+      
+        graph_planner::Plan msg;
+        msg.init_point =list_.pointList[index_init].key_id;;
+        msg.goal_point =list_.pointList[index_goal].key_id;;
+        plan_pub_.publish(msg);
+}
+
 
 
 int main(int argc, char** argv) {

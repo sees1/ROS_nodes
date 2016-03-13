@@ -65,6 +65,14 @@ Visualization Manager:
       Show Visual Aids: false
       Update Topic: /point_marker/update
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /graph_path
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48

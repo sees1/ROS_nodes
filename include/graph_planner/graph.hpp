@@ -171,13 +171,13 @@ public:
     virtual bool edgeChangeTo(EdgeKey edge_id, PointKey to_id);
     virtual bool edgeChangeFrom(EdgeKey edge_id, PointKey from_id);
 
+  virtual std::vector< std::shared_ptr<Path> > getPathes(unsigned int n, PointKey from, PointKey to);
+
+  virtual std::vector< std::pair< PointPtr, EdgePtr> > getNextPoint(EdgePtr last_edge, PointPtr current_point);
+
+
 ///////////////////////////////////////////////////
 /*  
-
-
- 
-  
-
     virtual std::vector< std::pair< VertexPtr, EdgePtr> > getNextVertex(EdgePtr last_edge, VertexPtr current_vertex);
 
     virtual std::vector< std::pair< VertexPtr, EdgePtr> > getNewVertex(EdgePtr last_edge, VertexPtr current_vertex);//for graph search with motion constraint (forward, backward, forward and backward)
@@ -202,7 +202,7 @@ protected:
         return *this;
     }
 
- //   virtual double computeWeight(EdgePtr last_edge_ptr, VertexPtr via_vertex, EdgePtr next_edge_ptr);
+   virtual double computeWeight(EdgePtr next_edge_ptr);
 
     
     EdgeSetPtr edges_;

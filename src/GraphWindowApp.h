@@ -37,6 +37,7 @@
 #include "graph_planner/PointCmd.h"
 #include "graph_planner/EdgeCmd.h"
 #include "graph_planner/GraphStructure.h"
+#include "graph_planner/Plan.h"
 //Add enum variables
 #include "graph_planner/point_cmd_def.h"
 #include "graph_planner/edge_cmd_def.h"
@@ -90,6 +91,8 @@ class GraphWindowApp : public QMainWindow, private Ui_GraphWindow {
        Send command "del_edge" and key_id of edge to "/edge_cmd" ROS topic after pushing "deleteEdgeButton".
       */
     void deleteEdge();
+
+    void findPath();
 public:
 
     //! A constructor.
@@ -116,7 +119,7 @@ private:
 
     ros::NodeHandle nh_; /*!< ROS NodeHandle. */
 
-    ros::Publisher cmd_point_pub_, cmd_edge_pub_;/*!<ROS publishers for "/point_cmd" and "/edge_cmd" topics.*/
+    ros::Publisher cmd_point_pub_, cmd_edge_pub_,plan_pub_;/*!<ROS publishers for "/point_cmd", "/edge_cmd"  and "plan_cmd"  topics.*/
     ros::Subscriber graph_sub_;/*!<ROS subscribe for "/graph" topic.*/
 
     graph_planner::GraphStructure list_;/*!<List with information of points and edges. Updates from "/graph" topic.*/

@@ -23,12 +23,12 @@ int main(int argc, char** argv) {
     unsigned int count = 0;
     while (ros::ok()) {
         ros::spinOnce();
-
+        creator.spinOnes();
         if (count++ > 5) {
             count = 0;
            
            creator.pubRvizGraph();
-            creator.spinOnes();
+        
         }
 
         r.sleep();

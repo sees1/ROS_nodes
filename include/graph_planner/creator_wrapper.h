@@ -21,6 +21,7 @@
 #include "graph_planner/PointCmd.h"
 #include "graph_planner/EdgeCmd.h"
 #include "graph_planner/GraphStructure.h"
+#include "graph_planner/Plan.h"
 //Add enum variables
 #include "graph_planner/point_cmd_def.h"
 #include "graph_planner/edge_cmd_def.h"
@@ -45,7 +46,7 @@ public:
      /*!
       The constructor creates ROS topics: "/points"; "/graph"; 
       It subscribes to the next ROS topics:
-      "/graph_viz"; "/query_viz"; "/path_viz"; "/point_cmd"; "/edge_cmd";
+      "/graph_viz"; "/path_viz"; "/point_cmd"; "/edge_cmd";
       It also creates interactive marker server "point_marker";
      */
     CreatorWrapper();
@@ -87,6 +88,7 @@ public:
         The function publishes graph to the "/graph_viz" topic.
      */
     void pubRvizGraph();
+
 
 
     //! point2msg function. 
@@ -133,15 +135,27 @@ public:
      */
     void addInteractiveMarker(PointKey id);
     void processMarkerFedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr& feedback);
-    
+
+    //! plannerCallback function. 
+    /*!
+        /param points is the integer values of points. This values relates to the unique id of the initial and  goal points.
+        The function gets the goal waypoint and try to construct the shortest path.
+        If path found it will publish it, otherwise it wil show message "No path found". 
+     */
+    void plannerCallback(const graph_planner::Plan::ConstPtr& points);
+
+        std::shared_ptr<Path> graphPath_;
+        std::vector<std::shared_ptr<Path>> pathes_;
+
+    void pubRvizPath();
 private:
     std::string name_;
     std::string folder_path_ ;
     ros::NodeHandle nh_, private_nh_;
     ros::Publisher graph_pub_;
-    ros::Publisher graph_viz_pub_;
+    ros::Publisher graph_viz_pub_,graph_path_viz_pub_;
 
-    ros::Subscriber point_cmd_sub_, edge_cmd_sub_, planner_cmd_sub_, goal_sub_;
+    ros::Subscriber point_cmd_sub_, edge_cmd_sub_, planner_sub_;
 
     ros::Publisher vis_pub_;
 

@@ -19,11 +19,14 @@ CreatorWrapper::CreatorWrapper() : nh_() {
 
     graph_pub_ = nh_.advertise<graph_planner::GraphStructure>("/graph", 0, true); //last option "true" is enables "latching" on a connection. When a connection is latched, the last message published is saved and automatically sent to any future subscribers that connect.
     graph_viz_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("/graph_viz", 1);
-    
+    graph_path_viz_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("/graph_path", 1);
     point_cmd_sub_ = nh_.subscribe <graph_planner::PointCmd> ("/point_cmd", 1, &CreatorWrapper::pointCmdCallback, this);
     edge_cmd_sub_ = nh_.subscribe<graph_planner::EdgeCmd>("/edge_cmd", 1, &CreatorWrapper::edgeCmdCallback, this);
 
     marker_server_ = new interactive_markers::InteractiveMarkerServer("point_marker");
+
+
+    planner_sub_ = nh_.subscribe<graph_planner::Plan>("/plan_cmd", 1, &CreatorWrapper::plannerCallback, this);
 }
 
 CreatorWrapper::~CreatorWrapper() {
@@ -179,6 +182,21 @@ void CreatorWrapper::edgeUpateFromMsg(graph_planner::Edge e) {
 }
 
 
+void CreatorWrapper::plannerCallback(const graph_planner::Plan::ConstPtr& points) {
+
+        //the function allow to find the multiple pathes
+        pathes_ = getPathes(1,points->init_point, points->goal_point);
+
+        //For visualization of the shortest path
+         graphPath_=pathes_[0];
+
+        
+}
+
+
+
+
+
 void CreatorWrapper::pubRvizGraph() {
 
     visualization_msgs::MarkerArray ma;
@@ -258,8 +276,8 @@ void CreatorWrapper::pubRvizGraph() {
     graph_viz_pub_.publish(ma);
 }
 
-/*
-void RailWrapper::pubRvizPath() {
+
+void CreatorWrapper::pubRvizPath() {
 
     if (graphPath_ == nullptr) {
         return;
@@ -272,7 +290,7 @@ void RailWrapper::pubRvizPath() {
     marker.id = 0;
     marker.type = visualization_msgs::Marker::SPHERE;
     marker.action = visualization_msgs::Marker::ADD;
-    marker.lifetime = ros::Duration(2);
+    marker.lifetime = ros::Duration(5);
     marker.pose.position.x = 0;
     marker.pose.position.y = 0;
     marker.pose.position.z = 0;
@@ -280,17 +298,17 @@ void RailWrapper::pubRvizPath() {
     marker.pose.orientation.y = 0.0;
     marker.pose.orientation.z = 0.0;
     marker.pose.orientation.w = 1.0;
-    marker.scale.x = 0.1;
-    marker.scale.y = 0.1;
-    marker.scale.z = 0.1;
+    marker.scale.x = 0.25;
+    marker.scale.y = 0.25;
+    marker.scale.z = 0.25;
     marker.color.a = 1.0;
     marker.color.r = 0.0;
     marker.color.g = 1.0;
 
-    for (int i = 0; i < graphPath_->vertex_ptrs_.size(); i++) {
+    for (int i = 0; i < graphPath_->point_ptrs_.size(); i++) {
         marker.id++;
-        auto it = vertices_->find(graphPath_->vertex_ptrs_[i]->id());
-        auto v = vertex2RailVertex(it->second);
+        auto it = points_->find(graphPath_->point_ptrs_[i]->id());
+        auto v = point2GraphPoint(it->second);
         marker.pose.position.x = v->x_;
         marker.pose.position.y = v->y_;
         marker.pose.position.z = 0;
@@ -313,14 +331,14 @@ void RailWrapper::pubRvizPath() {
         marker.points.clear();
         marker.id++;
         auto it = edges_->find(graphPath_->edge_ptrs_[i]->id());
-        auto e = edge2RailEdge(it->second);
+        auto e = edge2GraphEdge(it->second);
         geometry_msgs::Point p;
-        auto v = vertex2RailVertex(e->from());
+        auto v = point2GraphPoint(e->from());
         p.x = v->x_;
         p.y = v->y_;
         p.z = 0;
         marker.points.push_back(p);
-        v = vertex2RailVertex(e->to());
+        v = point2GraphPoint(e->to());
         p.x = v->x_;
         p.y = v->y_;
         p.z = 0;
@@ -330,7 +348,7 @@ void RailWrapper::pubRvizPath() {
 
     graph_path_viz_pub_.publish(ma);
 }
-*/
+
 
 void CreatorWrapper::addInteractiveMarker(PointKey id) {
 
@@ -442,10 +460,10 @@ void CreatorWrapper::processMarkerFedback(const visualization_msgs::InteractiveM
 
 
 void CreatorWrapper::spinOnes() {
-
-    //pubRvizPath(); // changes this function so that it only pulished the current path
-   // pubRvizQuery();
-
+    pubRvizPath(); // changes this function so that it only pulished the current path 
+        
+    graphPath_ = nullptr;
+ 
 }
 
 
