@@ -206,7 +206,7 @@ void CreatorWrapper::pubRvizGraph() {
     marker.id = 0;
     marker.type = visualization_msgs::Marker::SPHERE;
     marker.action = visualization_msgs::Marker::ADD;
-    marker.lifetime = ros::Duration(2);
+    marker.lifetime = ros::Duration(1);
     marker.pose.position.x = 0;
     marker.pose.position.y = 0;
     marker.pose.position.z = 0;
@@ -241,14 +241,15 @@ void CreatorWrapper::pubRvizGraph() {
     }
 
 
-    marker.type = visualization_msgs::Marker::ARROW;
+ 
+
+
+    for (auto it = edges_->begin(); it != edges_->end(); it++) {
+   marker.type = visualization_msgs::Marker::ARROW;
     marker.pose.position.x = 0;
     marker.pose.position.y = 0;
     marker.pose.position.z = 0;
 
-
-
-    for (auto it = edges_->begin(); it != edges_->end(); it++) {
         marker.points.clear();
         marker.id++;
         marker.scale.x = 0.05;
@@ -270,7 +271,24 @@ void CreatorWrapper::pubRvizGraph() {
         p.y = to->y_;
         p.z = 0;
         marker.points.push_back(p);
-        ma.markers.push_back(marker);       
+        ma.markers.push_back(marker);    
+
+        //add weight
+       
+        marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+        marker.id++;
+         //change the precision of the weight to 2 decimal poits 
+        std::stringstream stream;
+        stream << std::fixed << std::setprecision(2) << e->weight();
+        marker.text = stream.str() ;//std::to_string((double)e->weight());
+        marker.pose.position.x = (from->x_ + to->x_) / 2;
+        marker.pose.position.y = (from->y_ + to->y_) / 2;
+        marker.pose.position.z = 0;
+        marker.scale.z = 0.25;
+        marker.color.a = 1.0;
+        marker.color.r = 1.0;
+        marker.color.g = 1.0;
+        ma.markers.push_back(marker);   
     }
 
     graph_viz_pub_.publish(ma);
@@ -290,7 +308,7 @@ void CreatorWrapper::pubRvizPath() {
     marker.id = 0;
     marker.type = visualization_msgs::Marker::SPHERE;
     marker.action = visualization_msgs::Marker::ADD;
-    marker.lifetime = ros::Duration(5);
+    marker.lifetime = ros::Duration(1);
     marker.pose.position.x = 0;
     marker.pose.position.y = 0;
     marker.pose.position.z = 0;
@@ -462,7 +480,7 @@ void CreatorWrapper::processMarkerFedback(const visualization_msgs::InteractiveM
 void CreatorWrapper::spinOnes() {
     pubRvizPath(); // changes this function so that it only pulished the current path 
         
-    graphPath_ = nullptr;
+   // graphPath_ = nullptr;
  
 }
 

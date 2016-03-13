@@ -75,6 +75,7 @@ INCLUDE_DIRECTORIES(
    Edge.msg
    EdgeCmd.msg
    GraphStructure.msg
+   Plan.msg
  )
 
 ## Generate services in the 'srv' folder
