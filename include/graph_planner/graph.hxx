@@ -260,12 +260,6 @@ std::vector< std::pair< typename Graph<T>::PointPtr, typename Graph<T>::EdgePtr>
     return next_points_via_edge;
 }
 
-//template<class T>
-//double Graph<T>::computeWeight(EdgePtr last_edge_ptr, VertexPtr via_vertex, EdgePtr next_edge_ptr) {
-//    return 1;
-//}
-
-
 template<class T>
 double Graph<T>::computeWeight(EdgePtr next_edge_ptr) {
 

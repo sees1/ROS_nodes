@@ -62,7 +62,7 @@ public:
 
     //! pointCmdCallback function. 
     /*!
-        /param cmd is a message which includes the information about point, see ../graph_planner/msgs/VertexCmd.msg.
+        /param cmd is a message which includes the information about point, see ../graph_planner/msgs/PointCmd.msg.
         The function gets the information from the buttons of the gui and implements the necessary operations with points (add, delete, update) in rviz.
      */
     void pointCmdCallback(const graph_planner::PointCmd::ConstPtr &cmd);
@@ -70,7 +70,7 @@ public:
     //! edgeCmdCallback function. 
     /*!
         /param cmd is a message which includes the information about edge, see ../graph_planner/msgs/EdgeCmd.msg.
-        The function gets the information from the buttons of the gui in rail_creator mode and implements the necessary operations with edges (add, update, delete) in rviz.
+        The function gets the information from the buttons of the gui and implements the necessary operations with edges (add, update, delete) in rviz.
      */
     void edgeCmdCallback(const graph_planner::EdgeCmd::ConstPtr& cmd);
  
@@ -103,7 +103,7 @@ public:
     //! pointUpdateFromMsg function. 
     /*!
         /param v  is the Point information (x,y, name ).
-        The function updates currently existed vertex with new information from the topic "/point_cmd".
+        The function updates currently existed point with new information from the topic "/point_cmd".
      */
     void pointUpdateFromMsg(graph_planner::Point v);
 

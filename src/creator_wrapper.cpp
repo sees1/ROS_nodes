@@ -381,33 +381,6 @@ void CreatorWrapper::addInteractiveMarker(PointKey id) {
     int_marker.description = point_ptr->name_;
     int_marker.pose.position.x = point_ptr->x_;
     int_marker.pose.position.y = point_ptr->y_;
-   // int_marker.pose.position.z = 0.15;
-    //int_marker.pose.orientation = tf::createQuaternionMsgFromYaw(vertex_ptr->theta_);
-
-/*
-    // create a grey box marker
-    visualization_msgs::Marker box_marker;
-    box_marker.type = visualization_msgs::Marker::ARROW;
-    box_marker.scale.x = 0.4;
-    box_marker.scale.y = 0.05;
-    box_marker.scale.z = 0.05;
-    box_marker.color.r = 0.9;
-    box_marker.color.g = 0.0;
-    box_marker.color.b = 0.0;
-    box_marker.color.a = 1.0;
-
-
-    // create a non-interactive control which contains the box
-    visualization_msgs::InteractiveMarkerControl box_control;
-    box_control.always_visible = true;
-    box_control.markers.push_back(box_marker);
-
-    // add the control to the interactive marker
-    int_marker.controls.push_back(box_control);
-*/
-    // create a control which will move the box
-    // this control does not contain any markers,
-    // which will cause RViz to insert two arrows
     visualization_msgs::InteractiveMarkerControl control;
 
 
@@ -444,8 +417,7 @@ void CreatorWrapper::addInteractiveMarker(PointKey id) {
     control.orientation.z = 0;
     control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE;
     int_marker.controls.push_back(control);
-   // control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_AXIS;
-    //int_marker.controls.push_back(control);
+
 
 
 
@@ -479,9 +451,7 @@ void CreatorWrapper::processMarkerFedback(const visualization_msgs::InteractiveM
 
 void CreatorWrapper::spinOnes() {
     pubRvizPath(); // changes this function so that it only pulished the current path 
-        
-   // graphPath_ = nullptr;
- 
+       
 }
 
 

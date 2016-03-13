@@ -176,23 +176,6 @@ public:
   virtual std::vector< std::pair< PointPtr, EdgePtr> > getNextPoint(EdgePtr last_edge, PointPtr current_point);
 
 
-///////////////////////////////////////////////////
-/*  
-    virtual std::vector< std::pair< VertexPtr, EdgePtr> > getNextVertex(EdgePtr last_edge, VertexPtr current_vertex);
-
-    virtual std::vector< std::pair< VertexPtr, EdgePtr> > getNewVertex(EdgePtr last_edge, VertexPtr current_vertex);//for graph search with motion constraint (forward, backward, forward and backward)
-
-   // virtual std::vector< std::shared_ptr<Path> > getPathes(VertexKey from, VertexKey to, unsigned int n); //has equivalent name with function from line 204 !
-
-    virtual std::shared_ptr<Path> getPathVertex2Vertex(VertexKey from, VertexKey to);
-    virtual std::shared_ptr<Path> getPathVertex2Edge(VertexKey from, EdgeKey to);
-    virtual std::shared_ptr<Path> getPathEdge2Vertex(EdgeKey from, VertexKey to);
-    virtual std::shared_ptr<Path> getPathEdge2Edge(EdgeKey from, EdgeKey to);
-
-    virtual std::vector< std::shared_ptr<Path> > getPathes(unsigned int n, std::set<VertexKey> from, std::set<VertexKey> to);
-*/
-
-
 protected:
 
     Graph(const Graph<PointKey>& orig) {

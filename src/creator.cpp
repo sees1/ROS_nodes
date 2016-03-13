@@ -99,19 +99,6 @@ std::shared_ptr<GraphEdge> Creator::edge2GraphEdge(EdgePtr p) {
     return std::dynamic_pointer_cast<GraphEdge> (p);
 }
 
-
-/*
-std::shared_ptr<GraphEdge> Rail::getEdge(EdgeKey k) {
-    auto it = edges_->find(k);
-    if (it != edges_->end()) {
-        return std::dynamic_pointer_cast<GraphEdge> (it->second);
-    }
-
-    return nullptr;
-}
-*/
-
-
 bool Creator::loadGraphFromFile(std::string path, std::string name) {
 
     std::ifstream file_stream_points(path +"/"+ name + "_points.txt");
@@ -173,7 +160,6 @@ bool Creator::saveGraphToFile(std::string path, std::string name) {
   GraphFile.open (edge_file_name, std::ios::out | std::ios::trunc );
       if (GraphFile.is_open()){ 
             for(auto it = edges_->begin(); it != edges_->end(); it++){  
-              //GraphEdge* e_ptr = dynamic_cast<GraphEdge*> (it->second.get());   
               GraphFile<<it->second.get()->from()->id()<<" "<<it->second.get()->to()->id()<<" "<<it->second.get()->weight()<<"\n";
           }     
        }
