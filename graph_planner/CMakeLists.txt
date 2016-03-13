@@ -21,7 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 
-FIND_PACKAGE(Eigen3 REQUIRED )
+FIND_PACKAGE(Eigen REQUIRED )
 
 # Build Viewer
 FIND_PACKAGE( Qt4 REQUIRED )
@@ -115,6 +115,7 @@ catkin_package(
 #  CATKIN_DEPENDS roscpp rospy tf turtlesim
 #  DEPENDS system_lib
 CATKIN_DEPENDS message_runtime
+DEPENDS Eigen
 )
 
 
@@ -128,6 +129,7 @@ CATKIN_DEPENDS message_runtime
 include_directories(
   ${catkin_INCLUDE_DIRS}
   include
+  ${Eigen_INCLUDE_DIRS}
 )
 
 add_executable(creator
@@ -138,7 +140,7 @@ add_executable(creator
 )
 
 TARGET_LINK_LIBRARIES(creator
-    ${catkin_LIBRARIES} )
+    ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
 
 
 add_dependencies(creator graph_planner_generate_messages_cpp)
@@ -218,7 +220,7 @@ add_executable(graph_test_gui
 )
 
 TARGET_LINK_LIBRARIES(graph_test_gui
-    ${QT_LIBRARIES}  ${catkin_LIBRARIES} 
+    ${QT_LIBRARIES}  ${catkin_LIBRARIES} ${Eigen_LIBRARIES}
 )
 
 
