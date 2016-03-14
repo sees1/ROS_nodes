@@ -1,4 +1,9 @@
-
+/*
+ * GraphWindowApp.h
+ *
+ *  Created on: February 11, 2016
+ *      Author: Denis Tananaev
+ */
 #include "GraphWindowApp.h"
 
 GraphWindowApp::GraphWindowApp(QWidget *parent) : nh_(){
