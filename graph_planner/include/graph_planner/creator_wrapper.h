@@ -122,11 +122,6 @@ public:
      */
     void edgeUpateFromMsg(graph_planner::Edge e);
 
-     //! spinOnes function. 
-    /*!
-       The function visualise the goal and the path through the graph . 
-     */
-    void spinOnes();
 
     //! addInteractiveMarker function. 
     /*!

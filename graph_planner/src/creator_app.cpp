@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     unsigned int count = 0;
     while (ros::ok()) {
         ros::spinOnce();
-        creator.spinOnes();
+        creator.pubRvizPath();
         if (count++ > 5) {
             count = 0;
            

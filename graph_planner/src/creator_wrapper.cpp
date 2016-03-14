@@ -57,7 +57,7 @@ void CreatorWrapper::init() {
 
 void CreatorWrapper::pointCmdCallback(const graph_planner::PointCmd::ConstPtr& cmd) {
     std::cerr << "Got new cmd for point" << std::endl;
-
+    graphPath_ = nullptr;
     // add the point to the graph
     if (cmd->cmd == PointCMD::new_point) {
         std::cerr << "Add new Point" << std::endl;
@@ -84,7 +84,7 @@ void CreatorWrapper::pointCmdCallback(const graph_planner::PointCmd::ConstPtr& c
 }
 
 void CreatorWrapper::edgeCmdCallback(const graph_planner::EdgeCmd::ConstPtr& cmd) {
-
+    graphPath_ = nullptr;
     // add edge to the graph
     if (cmd->cmd == EdgeCMD::add_edge) {
         std::cerr << "Add new Edge" << std::endl;
@@ -449,10 +449,6 @@ void CreatorWrapper::processMarkerFedback(const visualization_msgs::InteractiveM
 
 
 
-void CreatorWrapper::spinOnes() {
-    pubRvizPath(); // changes this function so that it only pulished the current path 
-       
-}
 
 
 
