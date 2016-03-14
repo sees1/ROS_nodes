@@ -19,4 +19,4 @@ It contains:
          * run talker node: rosrun multimaster_example talker
          * run multimaster: roslaunch multimaster_example multimaster.launch
      * Troubleshooting: 
-         * Problim with sending messages between PCs, type on both PC (add to ~/.bashrc): export ROS_HOSTNAME=ip_adress_of_pc(e.g.export ROS_HOSTNAME=192.168.0.10 )   
+         * Problem with sending messages between PCs, type on both PC (add to ~/.bashrc): export ROS_HOSTNAME=ip_adress_of_pc(e.g.export ROS_HOSTNAME=192.168.0.10 )   
