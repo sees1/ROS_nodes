@@ -15,7 +15,7 @@ It contains:
      * To install use: catkin_make -j1 
      * To run: 
          * open launch file ../multimaster_example/launch/multimaster.launch  and add the ip of foreign PC and port of roscore 
-         * run roscore on both PC (not necessary to run roscore on foreign PC before launching multimaster becaue it has autoconnect)
+         * run roscore on both PC (not necessary to run roscore on foreign PC before launching multimaster because it has autoconnect)
          * run talker node: rosrun multimaster_example talker
          * run multimaster: roslaunch multimaster_example multimaster.launch
      * Troubleshooting: 
