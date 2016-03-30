@@ -17,14 +17,23 @@
 #include "topic_tools/parse.h"
 
 
-class foreignTopic{
+class relayTopic{
 public:
-      foreignTopic();
-     ~foreignTopic();
-     void callback(const std_msgs::String::ConstPtr& msg);    
-     ros::Publisher chat_;
+      relayTopic();
+     ~relayTopic();
+      void subscribe(std::string g_input_topic,ros::NodeHandle nh);//generic subscriber
+
+      void callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event);//generic callback function which also create generic publisher
+
+    ros::TransportHints g_th;
+     bool g_advertised = false;
+    ros::Publisher g_pub;
+    ros::Subscriber* g_sub;
+    std::string g_output_topic;
+
 
 private:
+     ros::NodeHandle *g_node = NULL;
      ros::NodeHandle n;
 };
 

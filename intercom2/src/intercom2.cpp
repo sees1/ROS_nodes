@@ -25,7 +25,7 @@ public:
      std::string foreign_master_uri();
      void init(ros::M_string remappings);
 
-     
+     std::string input_topic;
     std::string foreign_master, host_master;
      std::string foreign_ip;
      int foreign_port, msgsFrequency_Hz;
@@ -55,12 +55,13 @@ bool multimaster::getParam(){
 
     // Get the other parameters from the launch file     
     nh.param<int>("msgsFrequency_Hz", msgsFrequency_Hz, 10);
-
+    nh.getParam("topic_name",input_topic);
     //Get the host and foreign master_uri
         std::stringstream ss;
         ss <<"http://"<<foreign_ip<<":"<<foreign_port<<"/";
         foreign_master=ss.str();
-        host_master=ros::master::getURI(); 
+        host_master=ros::master::getURI();
+       std::cout<<"topic name is: "<<input_topic.c_str()<<"\n"; 
     return true;
 }
 
@@ -68,15 +69,21 @@ bool multimaster::getParam(){
 void multimaster::init(ros::M_string remappings) {
                   
     ros::Rate loop_rate(msgsFrequency_Hz);     
-                 foreignTopic pc; 
+                 relayTopic pc; 
     //Create subscribers in the host and connect them to the foreign topics 
-    remappings["__master"] = host_master;
+
+             
+//ros::spinOnce(); 
+   // ros::Subscriber subscriberFeedback = nh.subscribe("/chatter", 1, &foreignTopic::callback, &pc);  
+    //remappings["__master"] =  foreign_master;
+   //ros::master::init(remappings);
+    pc.subscribe(input_topic,nh);
+        remappings["__master"] = host_master;
     ros::master::init(remappings);
-    ros::Subscriber subscriberFeedback = nh.subscribe("/chatter", 1, &foreignTopic::callback, &pc);  
-    remappings["__master"] =  foreign_master;
-    ros::master::init(remappings);
+     pc.subscribe(input_topic,nh);
     while(ros::ok() && ros::master::check()==true){
         ros::spinOnce(); 
+         std::cout<<"spin go"<<"\n";
         loop_rate.sleep();
     }
 
@@ -101,7 +108,7 @@ int main(int argc, char **argv){
    if(mmaster.getParam()==false){
     return 0;
     }
-
+ 
     //remap to the foreign master 
     remappings["__master"] = mmaster.foreign_master_uri();
     ros::master::init(remappings);
@@ -124,7 +131,7 @@ if (ros::master::check()==false){
                ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI:= "<<mmaster.foreign_master_uri());                    
                
            }
-
+ ros::spinOnce(); 
    loop_rate_main.sleep();
     }
 
