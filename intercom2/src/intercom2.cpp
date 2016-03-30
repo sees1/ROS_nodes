@@ -151,7 +151,7 @@ void multimaster::init(ros::M_string remappings) {
    remappings["__master"] = host_master;
     ros::master::init(remappings);
      //g_sub = new ros::Subscriber(nh.subscribe(g_input_topic, 10, &relayTopic::callback,this,g_th));
-    ros::Subscriber *subscriberFeedback = new ros::Subscriber(nh.subscribe(input_topic, 1, &relayTopic::callback, &pc));  
+    ros::Subscriber *subscriberFeedback = new ros::Subscriber(nh.subscribe(hostTopicsList[i].topicName, 1, &relayTopic::callback, &pc));  
     remappings["__master"] =  foreign_master;
     ros::master::init(remappings);
   std::cout<<"hostTopicsList"<<"["<<i<<"]= "<<hostTopicsList[i].topicName.c_str()<<"\n";
