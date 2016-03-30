@@ -29,6 +29,9 @@ target_link_libraries(intercom2 topic_tools ${catkin_LIBRARIES})
 #add_dependencies(subscriber beginner_tutorials_generate_messages_cpp)
 
 
+add_executable(talker2 src/talker2.cpp)
+target_link_libraries(talker2 ${catkin_LIBRARIES})
+add_dependencies(talker2 intercom2_generate_messages_cpp)
 #add_executable(relay_topic src/relay_topic.cpp)
 #target_link_libraries(relay_topic intercom2 ${catkin_LIBRARIES})
 

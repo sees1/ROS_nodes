@@ -1,0 +1,2 @@
+/waypoint_goal/feedback,/waypoint_goal/result,/waypoint_goal/status,/ais_pose,/joint_states,
+/waypoint_goal/goal,/waypoint_goal/cancel,

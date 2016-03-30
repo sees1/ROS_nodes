@@ -16,13 +16,17 @@
 #include "topic_tools/shape_shifter.h"
 #include "topic_tools/parse.h"
 
+typedef struct{
+    std::string topicName;
+    bool    is_advertised;
+} topic;
+
 
 class relayTopic{
 public:
       relayTopic();
      ~relayTopic();
-      void subscribe(std::string g_input_topic,ros::NodeHandle nh);//generic subscriber
-
+      void subscribe(topic g_input_topic,std::string namesp);//generic subscriber
       void callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event);//generic callback function which also create generic publisher
 
     ros::TransportHints g_th;

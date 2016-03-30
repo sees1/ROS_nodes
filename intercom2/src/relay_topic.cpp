@@ -2,9 +2,9 @@
 #include "intercom2/relay_topic.h"
 //class which create  multimaster/chatter on the foreign pc 
 relayTopic::relayTopic() {
-     std::cout<<"node handle on!"<<"\n";
+
      ros::NodeHandle n;
-   // g_pub = n.advertise<topic_tools::ShapeShifter>("/chatter", 1000);  
+   
 }
 
 relayTopic::~relayTopic(){
@@ -17,7 +17,7 @@ relayTopic::~relayTopic(){
   boost::shared_ptr<const ros::M_string> const& connection_header = msg_event.getConnectionHeaderPtr();
 
     if (!g_advertised) {
-    // If the input topic is latched, make the output topic latched, #3385.
+    // If the input topic is latched, make the output topic latched.
      bool latch = false;
   
         if (connection_header){
@@ -31,19 +31,29 @@ relayTopic::~relayTopic(){
       
           //create generic publisher and publish mssage
         g_pub = msg->advertise(n, g_output_topic, 10, latch);
+       // g_pub =new ros::Publisher(msg->advertise(n, g_output_topic, 10, latch));
+
+
         g_advertised = true;
         ROS_INFO("advertised as %s\n", g_output_topic.c_str());
+        //std::cin.get();
     }
 
     g_pub.publish(msg);
 }
 
 
-void relayTopic::subscribe(std::string g_input_topic,ros::NodeHandle nh){
+void relayTopic::subscribe(topic g_input_topic,std::string namesp){
   
-      g_th.unreliable().reliable();
+     // g_th.unreliable().reliable();
 
-    g_output_topic=g_input_topic+"_relay";//the name of publisher on foreign pc 
+    g_output_topic=namesp+"/" + g_input_topic.topicName;//the name of publisher on foreign pc 
+
+    g_advertised=g_input_topic.is_advertised;
+    std::cout<<"topic_name= "<<g_output_topic<<"\n";
+    std::cout<<"advertise= "<<(bool)g_advertised<<"\n";
+
+    //ros::Publisher(advertise(const std::string& topic, uint32_t queue_size, bool latch = false);
 
    // g_sub = new ros::Subscriber(nh.subscribe(g_input_topic, 10, &relayTopic::callback,this,g_th));
 
