@@ -143,31 +143,34 @@ bool multimaster::getParam(){
 void multimaster::init(ros::M_string remappings) {
                   
        ros::Rate loop_rate(msgsFrequency_Hz);     
-               relayTopic pc;     
+           
+     relayTopic pc;
         for(int i=0; i<hostTopicsList.size();i++){
-    
-        pc.subscribe(hostTopicsList[i],namesp);
+       
+      
+       pc.subscribe(hostTopicsList[i],namesp);
     //Create subscribers in the host and connect them to the foreign topics 
    remappings["__master"] = host_master;
     ros::master::init(remappings);
-     //g_sub = new ros::Subscriber(nh.subscribe(g_input_topic, 10, &relayTopic::callback,this,g_th));
-    ros::Subscriber *subscriberFeedback = new ros::Subscriber(nh.subscribe(hostTopicsList[i].topicName, 1, &relayTopic::callback, &pc));  
+ 
+    ros::Subscriber *subscriberFeedback = new ros::Subscriber(nh.subscribe(hostTopicsList[i].topicName, 1, &relayTopic::callback, &pc)); 
     remappings["__master"] =  foreign_master;
     ros::master::init(remappings);
   std::cout<<"hostTopicsList"<<"["<<i<<"]= "<<hostTopicsList[i].topicName.c_str()<<"\n";
-     ros::spinOnce();
-    }         
+   ros::Duration(0.5).sleep(); //ros::spin(); 
+           ros::spinOnce();
    // pc.subscribe(input_topic,nh);
-    //ros::spinOnce(); 
+   //
 
- 
+} 
     while(ros::ok() && ros::master::check()==true){
-        ros::spinOnce(); 
-         //std::cout<<"spin go"<<"\n";
+        ros::spinOnce();
         loop_rate.sleep();
     }
 
-}
+
+ }  
+
 
 
 
@@ -212,7 +215,8 @@ if (ros::master::check()==false){
             foreign_master_works=true;   
             ROS_INFO_STREAM("CONNECTED TO THE ROS_MASTER_URI:= "<<mmaster.foreign_master_uri());      
                
-            mmaster.init(remappings);                
+            mmaster.init(remappings);     
+           
          } else if(ros::master::check()==false && foreign_master_works==true){
                 foreign_master_works=false;
                 ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI:= "<<mmaster.foreign_master_uri());                    

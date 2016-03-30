@@ -28,17 +28,20 @@ public:
      ~relayTopic();
       void subscribe(topic g_input_topic,std::string namesp);//generic subscriber
       void callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event);//generic callback function which also create generic publisher
-
+    ros::Publisher getPublisher(const std::string& topic,  boost::shared_ptr<topic_tools::ShapeShifter const> const &msg );
     ros::TransportHints g_th;
      bool g_advertised = false;
-    ros::Publisher g_pub;
+   
+     ros::Publisher* g_publish;
     ros::Subscriber* g_sub;
     std::string g_output_topic;
-
+   // std::string namesp_;
 
 private:
+    std::map<std::string, ros::Publisher> mPublishers;
      ros::NodeHandle *g_node = NULL;
      ros::NodeHandle n;
+     std::string namesp_;
 };
 
 #endif	/* RELAY_TOPIC_H */
