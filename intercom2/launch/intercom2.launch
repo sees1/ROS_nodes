@@ -1,5 +1,4 @@
 <launch>
-     <param name="topic_name" value="chatter"/>
      <param name="foreign_ip"  value="192.168.0.12"/>
      <param name="foreign_port"  value="11311"/>
      <param name="connectCheck_Hz"  value="200"/>

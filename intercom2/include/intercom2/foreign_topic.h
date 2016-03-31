@@ -5,7 +5,7 @@
 
 #include "ros/ros.h"
 #include "ros/callback_queue.h"
-#include "std_msgs/Empty.h"
+#include "std_msgs/String.h"
 #include <string>
 #include <iostream>
  #include <sstream>
@@ -22,11 +22,11 @@ public:
 
       relayTopic();
      ~relayTopic();
-    void conn_cb(const ros::SingleSubscriberPublisher&);
+
       void subscribe(std::string g_input_topic,std::string namesp, ros::NodeHandle nh);//generic subscriber
       void callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event, std::string& topic);//generic callback function which also create generic publisher
      ros::Publisher getPublisher(const std::string& topic,  boost::shared_ptr<topic_tools::ShapeShifter const> const &msg, boost::shared_ptr<const ros::M_string> const& connection_header );
-ros::Publisher pub;
+
 private:
       std::map<std::string, ros::Publisher> mPublishers;
       std::vector<ros::Subscriber> subs; 

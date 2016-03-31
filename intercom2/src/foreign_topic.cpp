@@ -2,22 +2,11 @@
 #include "intercom2/relay_topic.h"
 //class which create  multimaster/chatter on the foreign pc 
 relayTopic::relayTopic() {
-     ros::NodeHandle n; 
-       //topic_tools::ShapeShifter temp(std_msgs::Empty);
-   // ros::Publisher pub=temp.advertise(n,"chat",10,false);
-   // pub=n.advertise<std_msgs::Empty>("/relay/chatter2", 10);
-  //  std::cout<< mPublishers["/relay/chatter2"]<<"\n";
+     ros::NodeHandle n;
 }
 
 relayTopic::~relayTopic(){
 }
-
-void relayTopic::conn_cb(const ros::SingleSubscriberPublisher&)
-{
- // ros::Subscriber subscriber=n.subscribe<topic_tools::ShapeShifter>("chat", 10, boost::bind(&relayTopic::callback, this, _1, "chat") );
-   // subs.push_back(subscriber);
-}
-
 
  void relayTopic::callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event, std::string& topic){
 
@@ -26,8 +15,8 @@ void relayTopic::conn_cb(const ros::SingleSubscriberPublisher&)
     boost::shared_ptr<topic_tools::ShapeShifter const> const &msg = msg_event.getConstMessage();
     boost::shared_ptr<const ros::M_string> const& connection_header = msg_event.getConnectionHeaderPtr();
 
-    ros::Publisher publ = relayTopic::getPublisher(namesp_+"/"+topic, msg,connection_header);
-    publ.publish(msg);
+    ros::Publisher pub = relayTopic::getPublisher(namesp_+"/"+topic, msg,connection_header);
+    pub.publish(msg);
 
 }
 

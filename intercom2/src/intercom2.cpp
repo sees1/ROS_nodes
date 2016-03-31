@@ -16,7 +16,7 @@ namespace ros {
 }
 
 
-//The class with functions which read the parameters from launch file and subscribe to the multimaster/chatter
+//The class with functions which read the parameters from launch file and subscribe topics
 class multimaster {
 public:
     multimaster();
@@ -26,10 +26,10 @@ public:
      void init(ros::M_string remappings);
     bool getTopicsList();
 
-    std::vector<topic> hostTopicsList;
-    std::vector<topic> foreignTopicsList;
+    std::vector<std::string> hostTopicsList;
+    std::vector<std::string> foreignTopicsList;
 
-     std::string input_topic, namesp;
+     std::string namesp;
     std::string foreign_master, host_master;
      std::string foreign_ip;
      int foreign_port, msgsFrequency_Hz;
@@ -70,9 +70,8 @@ bool multimaster::getTopicsList(){
                         auto end = line.find(delim);
                    while(end != std::string::npos){
 
-                        topic temp;
-                        temp.is_advertised=false;
-                        temp.topicName=line.substr(start, end - start);
+                      
+                       std::string temp=line.substr(start, end - start);
                         hostTopicsList.push_back(temp);
 
                         std::cout << line.substr(start, end - start) << std::endl;
@@ -88,9 +87,8 @@ bool multimaster::getTopicsList(){
                         auto end = line.find(delim);
                    while(end != std::string::npos){
                         getline(iss, parser, ',');
-                        topic temp;
-                        temp.is_advertised=false;
-                        temp.topicName=line.substr(start, end - start);
+                   
+                        std::string temp=line.substr(start, end - start);
                         foreignTopicsList.push_back(temp);
 
                         std::cout << line.substr(start, end - start) << std::endl;
@@ -125,7 +123,7 @@ bool multimaster::getParam(){
     // Get the other parameters from the launch file     
     nh.param<int>("msgsFrequency_Hz", msgsFrequency_Hz, 10);
      nh.param<std::string>("namespace", namesp, "intercom2");
-    nh.getParam("topic_name",input_topic);
+
 
     
     //Get the host and foreign master_uri
@@ -133,8 +131,7 @@ bool multimaster::getParam(){
         ss <<"http://"<<foreign_ip<<":"<<foreign_port<<"/";
         foreign_master=ss.str();
         host_master=ros::master::getURI();
-       std::cout<<"topic name is: "<<input_topic.c_str()<<"\n";
-
+   
 
     return true;
 }
@@ -147,31 +144,29 @@ void multimaster::init(ros::M_string remappings) {
      relayTopic pc;
    remappings["__master"] = host_master;
     ros::master::init(remappings);
-        for(int i=0; i<hostTopicsList.size();i++){
-       
-      
-        
-    //Create subscribers in the host and connect them to the foreign topics 
+     
+    for(int i=0; i<hostTopicsList.size();i++){         
+        //Create subscribers in the host and connect them to the foreign topics 
+        pc.subscribe(hostTopicsList[i],namesp, nh); 
+        std::cout<<"hostTopicsList"<<"["<<i<<"]= "<<hostTopicsList[i].c_str()<<"\n";
+    
+    } 
 
-   pc.subscribe(hostTopicsList[i],namesp, nh);
-    //ros::Subscriber *subscriberFeedback = new ros::Subscriber(nh.subscribe(hostTopicsList[i].topicName, 1, &relayTopic::callback, &pc));
 
-std::cout<<"hostTopicsList"<<"["<<i<<"]= "<<hostTopicsList[i].topicName.c_str()<<"\n";
- //  ros::Duration(0.5).sleep(); //ros::spin(); 
-   //        ros::spinOnce();
-   // pc.subscribe(input_topic,nh);
-   //
-
-} 
-
-       remappings["__master"] =  foreign_master;
+        relayTopic pc2;    
+    remappings["__master"] =  foreign_master;
     ros::master::init(remappings);
+/*
+     for(int i=0; i<foreignTopicsList.size();i++){         
+    //Create subscribers in the host and connect them to the foreign topics 
+         pc2.subscribe(foreignTopicsList[i],namesp, nh);   
+        std::cout<<"foreignTopicsList"<<"["<<i<<"]= "<<foreignTopicsList[i].c_str()<<"\n";
+    } 
+*/
     while(ros::ok() && ros::master::check()==true){
         ros::spinOnce();
         loop_rate.sleep();
     }
-
-
  }  
 
 
