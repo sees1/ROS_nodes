@@ -1,4 +1,4 @@
-
+#include <boost/bind.hpp>
 #include "intercom2/relay_topic.h"
 //class which create  multimaster/chatter on the foreign pc 
 relayTopic::relayTopic() {
@@ -11,7 +11,7 @@ relayTopic::~relayTopic(){
 }
 
 
- void relayTopic::callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event){
+ void relayTopic::callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event, std::string& topic){
 
      std::string publisher_name = msg_event.getPublisherName(); 
    publisher_name= namesp_+"/"+publisher_name;  
@@ -46,7 +46,7 @@ relayTopic::~relayTopic(){
 
 */
    // g_pub.publish(msg);
-ros::Publisher pub = relayTopic::getPublisher(publisher_name, msg);
+ros::Publisher pub = relayTopic::getPublisher(namesp_+"/"+topic, msg);
 pub.publish(msg);
    //g_publish->publish(msg);
 }
@@ -63,17 +63,26 @@ ros::Publisher relayTopic::getPublisher(const std::string& topic,  boost::shared
 }
 
 
-void relayTopic::subscribe(topic g_input_topic,std::string namesp){
+void relayTopic::subscribe(topic g_input_topic,std::string namesp, ros::NodeHandle nh ){
   
+//sub[i] = node.subscribe(sub_name, 1, boost::bind(&MyClass::callback, this, _1, i));
+std::cout<<namesp+"/"+ g_input_topic.topicName<<"\n";
+//    g_sub = new ros::Subscriber(n.subscribe("chatter", 10, boost::bind(&relayTopic::callback, this, _1, "chatter") ));
+ ros::Subscriber subscriber=nh.subscribe<topic_tools::ShapeShifter>(g_input_topic.topicName, 10, boost::bind(&relayTopic::callback, this, _1, g_input_topic.topicName) );
+    subs.push_back(subscriber);
      // g_th.unreliable().reliable();
-    namesp_=namesp;
-    g_output_topic=namesp+"/" + g_input_topic.topicName;//the name of publisher on foreign pc 
+   namesp_=namesp;
+   // g_output_topic=namesp+"/" + g_input_topic.topicName;//the name of publisher on foreign pc 
 
-    g_advertised=g_input_topic.is_advertised;
-    std::cout<<"topic_name= "<<g_output_topic<<"\n";
-    std::cout<<"advertise= "<<(bool)g_advertised<<"\n";
+  //  g_advertised=g_input_topic.is_advertised;
+  //  std::cout<<"topic_name= "<<g_output_topic<<"\n";
+  //  std::cout<<"advertise= "<<(bool)g_advertised<<"\n";
 
-    //ros::Publisher(advertise(const std::string& topic, uint32_t queue_size, bool latch = false);
+  
+ // subs.push_back( nh.subscribe( g_input_topic.topicName, 1, boost::bind( &relayTopic::callback, this,_1,  g_input_topic.topicName))  ); 
+
+
+  //ros::Publisher(advertise(const std::string& topic, uint32_t queue_size, bool latch = false);
 
    // g_sub = new ros::Subscriber(nh.subscribe(g_input_topic, 10, &relayTopic::callback,this,g_th));
 

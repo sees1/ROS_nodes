@@ -24,10 +24,14 @@ typedef struct{
 
 class relayTopic{
 public:
+
+
+      std::vector<ros::Subscriber> subs; 
+      std::vector<std::string> topics; 
       relayTopic();
      ~relayTopic();
-      void subscribe(topic g_input_topic,std::string namesp);//generic subscriber
-      void callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event);//generic callback function which also create generic publisher
+      void subscribe(topic g_input_topic,std::string namesp, ros::NodeHandle nh);//generic subscriber
+      void callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event, std::string& topic);//generic callback function which also create generic publisher
     ros::Publisher getPublisher(const std::string& topic,  boost::shared_ptr<topic_tools::ShapeShifter const> const &msg );
     ros::TransportHints g_th;
      bool g_advertised = false;

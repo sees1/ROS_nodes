@@ -145,24 +145,27 @@ void multimaster::init(ros::M_string remappings) {
        ros::Rate loop_rate(msgsFrequency_Hz);     
            
      relayTopic pc;
+   remappings["__master"] = host_master;
+    ros::master::init(remappings);
         for(int i=0; i<hostTopicsList.size();i++){
        
       
-       pc.subscribe(hostTopicsList[i],namesp);
+        
     //Create subscribers in the host and connect them to the foreign topics 
-   remappings["__master"] = host_master;
-    ros::master::init(remappings);
- 
-    ros::Subscriber *subscriberFeedback = new ros::Subscriber(nh.subscribe(hostTopicsList[i].topicName, 1, &relayTopic::callback, &pc)); 
-    remappings["__master"] =  foreign_master;
-    ros::master::init(remappings);
-  std::cout<<"hostTopicsList"<<"["<<i<<"]= "<<hostTopicsList[i].topicName.c_str()<<"\n";
-   ros::Duration(0.5).sleep(); //ros::spin(); 
-           ros::spinOnce();
+
+   pc.subscribe(hostTopicsList[i],namesp, nh);
+    //ros::Subscriber *subscriberFeedback = new ros::Subscriber(nh.subscribe(hostTopicsList[i].topicName, 1, &relayTopic::callback, &pc));
+
+std::cout<<"hostTopicsList"<<"["<<i<<"]= "<<hostTopicsList[i].topicName.c_str()<<"\n";
+ //  ros::Duration(0.5).sleep(); //ros::spin(); 
+   //        ros::spinOnce();
    // pc.subscribe(input_topic,nh);
    //
 
 } 
+
+       remappings["__master"] =  foreign_master;
+    ros::master::init(remappings);
     while(ros::ok() && ros::master::check()==true){
         ros::spinOnce();
         loop_rate.sleep();
