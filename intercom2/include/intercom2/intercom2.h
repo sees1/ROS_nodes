@@ -11,7 +11,10 @@ namespace ros {
     }
 }
 
-
+typedef struct{
+    std::string from;
+    std::string to;
+}tfTransform;
 
 //The class with functions which read the parameters from launch file and subscribe topics
 class multimaster {
@@ -21,6 +24,8 @@ public:
      bool getParam();
      std::string foreign_master_uri();
      void init(ros::M_string remappings);
+
+
     bool getHostTopicsList();
     bool getForeignTopicsList();
     void host2foreign(ros::M_string remappings);
@@ -28,6 +33,10 @@ public:
 
     std::vector<std::string> hostTopicsList;
     std::vector<std::string> foreignTopicsList;
+    std::vector<tfTransform> hostTfList;
+    std::vector<tfTransform> foreignTfList;
+
+
 
      std::string namesp;
     std::string foreign_master, host_master;

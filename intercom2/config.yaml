@@ -1,3 +1,4 @@
-local_pubs: [chatter2,]
-foreign_pubs: [chatter,]
-
+local_pubs: []
+foreign_pubs: []
+local_tf: [/map->/np,]
+foreign_tf: []

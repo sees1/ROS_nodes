@@ -59,6 +59,21 @@ void relayTopic::subscribe(std::string g_input_topic,std::string namesp, ros::No
 }
 
 
+tf::StampedTransform relayTopic::listen(ros::Time time,std::string from, std::string to){
 
+   // tf::TransformListener listener;
+   // tf::StampedTransform transform;
+try{
+    listener.waitForTransform(from, to,
+                              time, ros::Duration(3.0));
+       listener.lookupTransform(from, to, time, transform);
+        transform.stamp_=ros::Time::now();
+ }
+    catch (tf::TransformException ex){
+      ROS_ERROR("%s",ex.what());
+      //ros::Duration(1.0).sleep();
+    }
+    return  transform;
+}
 
 

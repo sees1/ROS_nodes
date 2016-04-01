@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 MESSAGE("FALGS: ${CMAKE_CXX_FLAGS}")
 find_package(Boost REQUIRED COMPONENTS system)
 ## Find catkin and any catkin packages
-find_package(catkin  REQUIRED COMPONENTS roscpp rospy roslib std_msgs)
+find_package(catkin  REQUIRED COMPONENTS roscpp rospy tf roslib std_msgs)
 
 ## Declare ROS messages and services
 #add_message_files(FILES Num.msg)

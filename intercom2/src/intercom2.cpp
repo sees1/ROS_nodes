@@ -50,22 +50,34 @@ bool multimaster::getHostTopicsList(){
                     } 
                 }
 
-                 //get the list of topics from foreign computer
-                 if(parser=="foreign_pubs"){
+                 //get list of transforms from host
+                 if(parser=="local_tf"){
                         std::string delim =",";
+                        std::string delim_tf ="->";
                         auto start=line.find(":")+3;
+                        auto split=line.find(delim_tf);
                         auto end = line.find(delim);
                    while(end != std::string::npos){
-                        getline(iss, parser, ',');
-                   
-                        std::string temp=line.substr(start, end - start);
-                        foreignTopicsList.push_back(temp);
 
-                        std::cout << line.substr(start, end - start) << std::endl;
-                        start = end + delim.length();
-                        end = line.find(delim, start);
+                      
+                       //std::string temp=line.substr(start, end - start);
+
+                        tfTransform temp;
+                        temp.from=line.substr(start, split - start);
+       
+                        temp.to=line.substr(split+delim_tf.length(), end-split-delim_tf.length());
+                        hostTfList.push_back(temp);
+                       //  std::cout <<"from "<<line.substr(start, split - start)<< std::endl;
+                      //  std::cout <<"to "<<line.substr(split+delim_tf.length(), end-split-delim_tf.length())<< std::endl;
+
+                         start = end + delim.length();
+                         split=line.find(delim_tf, start);
+                         end = line.find(delim, start);
                     } 
                 }
+    
+
+
          }
          file_stream_topics.close();
     }else{
@@ -104,6 +116,31 @@ bool multimaster::getForeignTopicsList(){
                         end = line.find(delim, start);
                     } 
                 }
+
+                  //get list of transforms from host
+                 if(parser=="foreign_tf"){
+                        std::string delim =",";
+                        std::string delim_tf ="->";
+                        auto start=line.find(":")+3;
+                        auto split=line.find(delim_tf);
+                        auto end = line.find(delim);
+                   while(end != std::string::npos){
+
+                      
+  
+                        tfTransform temp;
+                        temp.from=line.substr(start, split - start);
+                        temp.to=line.substr(split+delim_tf.length(), end-split-delim_tf.length());
+
+                        foreignTfList.push_back(temp);
+                      
+
+                         start = end + delim.length();
+                         split=line.find(delim_tf, start);
+                         end = line.find(delim, start);
+                    } 
+                }
+    
          }
          file_stream_topics.close();
     }else{
@@ -146,13 +183,21 @@ bool multimaster::getParam(){
 
 void multimaster::host2foreign(ros::M_string remappings) {
                   
-       ros::Rate loop_rate(msgsFrequency_Hz);     
+     ros::Rate loop_rate(msgsFrequency_Hz);     
            
-    relayTopic pc;//foreign node handle
+     
+    
+     tf::TransformBroadcaster broadcaster;
+   
+     ros::Time foreign_time=ros::Time::now();
+
      remappings["__master"] = host_master;
      ros::master::init(remappings);
-   
 
+     ros::Time host_time=ros::Time::now();
+     ros::Duration difference=host_time-foreign_time; 
+
+    relayTopic pc;
     for(int i=0; i<hostTopicsList.size();i++){         
         //Create subscribers in the host and connect them to the foreign topics 
         pc.subscribe(hostTopicsList[i],namesp, nh); 
@@ -162,31 +207,50 @@ void multimaster::host2foreign(ros::M_string remappings) {
     remappings["__master"] =  foreign_master;
     ros::master::init(remappings);
 
+    
+    ros::Duration(0.5).sleep();
     while(ros::ok() && ros::master::check()==true){
         ros::spinOnce();
         loop_rate.sleep();
+
+          for(int i=0; i<hostTfList.size();i++){ 
+            broadcaster.sendTransform(
+            tf::StampedTransform(pc.listen(ros::Time::now()+difference,hostTfList[i].from, hostTfList[i].to)));
+            
+            }
     }
  }  
 
 
 void multimaster::foreign2host(ros::M_string remappings) {
           ros::Rate loop_rate(msgsFrequency_Hz); 
-    relayTopic pc2; //host node handle
-
-    remappings["__master"] =  foreign_master;
-    ros::master::init(remappings);
+    relayTopic pc2;
+    tf::TransformBroadcaster broadcaster;
+   // remappings["__master"] =  foreign_master;
+    //ros::master::init(remappings);
 
      for(int i=0; i<foreignTopicsList.size();i++){         
     //Create subscribers in the host and connect them to the foreign topics 
          pc2.subscribe(foreignTopicsList[i],namesp, nh);   
         std::cout<<"foreignTopicsList"<<"["<<i<<"]= "<<foreignTopicsList[i].c_str()<<"\n";
     } 
-remappings["__master"] = host_master;
-     ros::master::init(remappings);
-   
+
+    ros::Time foreign_time=ros::Time::now(); 
+    remappings["__master"] = host_master;
+    ros::master::init(remappings);
+    ros::Time host_time=ros::Time::now();
+    ros::Duration difference=host_time-foreign_time; 
+
+    ros::Duration(0.5).sleep();
     while(ros::ok() && ros::master::check()==true){
         ros::spinOnce();
         loop_rate.sleep();
+
+              for(int i=0; i<foreignTfList.size();i++){ 
+            broadcaster.sendTransform(
+            tf::StampedTransform(pc2.listen(ros::Time::now()+difference,foreignTfList[i].from, foreignTfList[i].to)));
+            
+            }
     }
 }
 
