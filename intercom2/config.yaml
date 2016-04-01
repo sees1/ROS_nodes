@@ -1,4 +1,4 @@
 local_pubs: []
 foreign_pubs: []
-local_tf: [/map->/np,]
-foreign_tf: []
+local_tf: []
+foreign_tf: [/map->/np,]

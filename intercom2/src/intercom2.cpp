@@ -131,7 +131,8 @@ bool multimaster::getForeignTopicsList(){
                         tfTransform temp;
                         temp.from=line.substr(start, split - start);
                         temp.to=line.substr(split+delim_tf.length(), end-split-delim_tf.length());
-
+                         std::cout << line.substr(start, split - start) << std::endl;
+                         std::cout << line.substr(split+delim_tf.length(), end-split-delim_tf.length()) << std::endl;
                         foreignTfList.push_back(temp);
                       
 
@@ -223,12 +224,10 @@ void multimaster::host2foreign(ros::M_string remappings) {
 
 
 void multimaster::foreign2host(ros::M_string remappings) {
-          ros::Rate loop_rate(msgsFrequency_Hz); 
+         
+  
     relayTopic pc2;
-    tf::TransformBroadcaster broadcaster;
-   // remappings["__master"] =  foreign_master;
-    //ros::master::init(remappings);
-
+  
      for(int i=0; i<foreignTopicsList.size();i++){         
     //Create subscribers in the host and connect them to the foreign topics 
          pc2.subscribe(foreignTopicsList[i],namesp, nh);   
@@ -240,7 +239,9 @@ void multimaster::foreign2host(ros::M_string remappings) {
     ros::master::init(remappings);
     ros::Time host_time=ros::Time::now();
     ros::Duration difference=host_time-foreign_time; 
-
+    
+     ros::Rate loop_rate(msgsFrequency_Hz); 
+      tf::TransformBroadcaster broadcaster;
     ros::Duration(0.5).sleep();
     while(ros::ok() && ros::master::check()==true){
         ros::spinOnce();
