@@ -24,10 +24,13 @@ include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 add_library(topic_tools src/shape_shifter.cpp src/parse.cpp)
 target_link_libraries(topic_tools ${catkin_LIBRARIES})
 
-add_executable(intercom2 src/intercom2.cpp src/relay_topic.cpp)
-target_link_libraries(intercom2 topic_tools ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(host2foreign src/host2foreign.cpp src/intercom2.cpp src/relay_topic.cpp)
+target_link_libraries(host2foreign topic_tools ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 #add_dependencies(subscriber beginner_tutorials_generate_messages_cpp)
 
+
+add_executable(foreign2host src/foreign2host.cpp src/intercom2.cpp src/relay_topic.cpp)
+target_link_libraries(foreign2host topic_tools ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(talker2 src/talker2.cpp)
 target_link_libraries(talker2 ${catkin_LIBRARIES} )
