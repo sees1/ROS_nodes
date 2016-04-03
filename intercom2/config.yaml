@@ -1,4 +1,4 @@
-local_pubs: []
+local_pubs: [scan_rear,scan_front,particlecloud,]
 foreign_pubs: []
-local_tf: []
-foreign_tf: [/map->/np,]
+local_tf: [map->np,np->scan_front_frame,np->scan_rear_frame,map->true_pose,map->odom,]
+foreign_tf: []

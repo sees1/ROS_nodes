@@ -1,4 +1,9 @@
-
+/*
+ * 
+ *
+ *  Created on: March 30, 2016
+ *      Author: Denis Tananaev
+ */
 
 #include "intercom2/intercom2.h"
 

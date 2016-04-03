@@ -21,13 +21,18 @@ catkin_package(  INCLUDE_DIRS include)
 ## Build talker and listener
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
-add_library(topic_tools src/shape_shifter.cpp src/parse.cpp)
+add_library(topic_tools src/shape_shifter.cpp)
 target_link_libraries(topic_tools ${catkin_LIBRARIES})
 
 add_executable(host2foreign src/host2foreign.cpp src/intercom2.cpp src/relay_topic.cpp)
 target_link_libraries(host2foreign topic_tools ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 #add_dependencies(subscriber beginner_tutorials_generate_messages_cpp)
 
+add_executable(host_actions_app src/host_actions_app.cpp)
+target_link_libraries(host_actions_app ${catkin_LIBRARIES})
+
+add_executable(foreign_actions_app src/foreign_actions_app.cpp)
+target_link_libraries(foreign_actions_app ${catkin_LIBRARIES})
 
 add_executable(foreign2host src/foreign2host.cpp src/intercom2.cpp src/relay_topic.cpp)
 target_link_libraries(foreign2host topic_tools ${catkin_LIBRARIES} ${Boost_LIBRARIES})

@@ -1,3 +1,10 @@
+/*
+ * 
+ *
+ *  Created on: March 30, 2016
+ *      Author: Denis Tananaev
+ */
+
 
 #include "intercom2/relay_topic.h"
 //class which create  multimaster/chatter on the foreign pc 

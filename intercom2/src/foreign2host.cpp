@@ -1,3 +1,9 @@
+/*
+ * multimaster_example.cpp
+ *
+ *  Created on: March 30, 2016
+ *      Author: Denis Tananaev
+ */
 
 #include "intercom2/intercom2.h"
 
@@ -30,20 +36,20 @@ int main(int argc, char **argv){
 
     //first check
 if (ros::master::check()==false){
-    ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI:= "<< mmaster.foreign_master_uri());
+    //ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI:= "<< mmaster.foreign_master_uri());
 }
 
     while(ros::ok()){
         //check that master is working
         if(ros::master::check()==true && foreign_master_works==false){
             foreign_master_works=true;   
-            ROS_INFO_STREAM("CONNECTED TO THE ROS_MASTER_URI:= "<<mmaster.foreign_master_uri());      
+           // ROS_INFO_STREAM("CONNECTED TO THE ROS_MASTER_URI:= "<<mmaster.foreign_master_uri());      
                
             mmaster.foreign2host(remappings);     
            
          } else if(ros::master::check()==false && foreign_master_works==true){
                 foreign_master_works=false;
-                ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI:= "<<mmaster.foreign_master_uri());                    
+               // ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI:= "<<mmaster.foreign_master_uri());                    
                
            }
    loop_rate_main.sleep();

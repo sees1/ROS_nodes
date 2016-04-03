@@ -117,7 +117,7 @@ bool multimaster::getForeignTopicsList(){
                     } 
                 }
 
-                  //get list of transforms from host
+                  //get list of transforms from foreign
                  if(parser=="foreign_tf"){
                         std::string delim =",";
                         std::string delim_tf ="->";
