@@ -1,9 +1,0 @@
-<launch>
-
-<include file="$(find intercom2)/launch/intercom2.launch"/>
-
-
-  <node name="host_actions_app" pkg="intercom2"  type="host_actions_app" output="screen">
-  </node>
-
-</launch>

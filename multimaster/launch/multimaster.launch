@@ -4,8 +4,6 @@
      <param name="connectCheck_Hz"  value="200"/>
      <param name="msgsFrequency_Hz"  value="10" />
      <param name="namespace"  value="relay" />
-  <node name="host2foreign" pkg="intercom2" type="host2foreign" output="screen">
+  <node name="main" pkg="mutltimaster" type="mutltimaster" output="screen">
     </node>
-  <node name="foreign2host" pkg="intercom2" type="foreign2host" output="screen">
-   </node>
 </launch>

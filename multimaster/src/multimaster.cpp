@@ -1,17 +1,17 @@
 /*
- * intercom2.cpp
+ *  File :multimaster.cpp
  *
- *  Created on: march 30, 2016
+ *  Created on: Februar 23.02.2017
  *      Author: Denis Tananaev
  */
 
-#include "intercom2/intercom2.h"
+#include "multimaster/multimaster.h"
 
 
 multimaster::multimaster(){
 
     config_name_ = "config"; 
-    folder_path_ = ros::package::getPath("intercom2"); 
+    folder_path_ = ros::package::getPath("multimaster"); 
  
 }
 
@@ -60,15 +60,12 @@ bool multimaster::getHostTopicsList(){
                    while(end != std::string::npos){
 
                       
-                       //std::string temp=line.substr(start, end - start);
 
                         tfTransform temp;
                         temp.from=line.substr(start, split - start);
        
                         temp.to=line.substr(split+delim_tf.length(), end-split-delim_tf.length());
                         hostTfList.push_back(temp);
-                       //  std::cout <<"from "<<line.substr(start, split - start)<< std::endl;
-                      //  std::cout <<"to "<<line.substr(split+delim_tf.length(), end-split-delim_tf.length())<< std::endl;
 
                          start = end + delim.length();
                          split=line.find(delim_tf, start);

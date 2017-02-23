@@ -1,18 +1,18 @@
 /*
  * 
  *
- *  Created on: March 30, 2016
+ *  Created on: Februar 23.02.2017
  *      Author: Denis Tananaev
  */
 
-#include "intercom2/intercom2.h"
+#include "multimaster/multimaster.h"
 
 
 int main(int argc, char **argv){
     ros::M_string     remappings;
 
     //init ROS    
-    ros::init(argc, argv,"host2foreign");
+    ros::init(argc, argv,"main");
           
 
      ros::NodeHandle nh;  

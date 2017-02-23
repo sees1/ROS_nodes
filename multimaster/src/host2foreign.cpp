@@ -1,17 +1,18 @@
 /*
- * multimaster_example.cpp
+ * 
  *
- *  Created on: March 30, 2016
+ *  Created on: Februar 23.02.2017
  *      Author: Denis Tananaev
  */
 
-#include "intercom2/intercom2.h"
+#include "multimaster/multimaster.h"
+
 
 int main(int argc, char **argv){
     ros::M_string     remappings;
 
     //init ROS    
-    ros::init(argc, argv,"foreign2host");
+    ros::init(argc, argv,"main");
           
 
      ros::NodeHandle nh;  
@@ -25,7 +26,7 @@ int main(int argc, char **argv){
     }
 
 
-    if(mmaster.getForeignTopicsList()==false){
+    if(mmaster.getHostTopicsList()==false){
         return 0;
     }
 
@@ -36,20 +37,20 @@ int main(int argc, char **argv){
 
     //first check
 if (ros::master::check()==false){
-    //ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI:= "<< mmaster.foreign_master_uri());
+    ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI:= "<< mmaster.foreign_master_uri());
 }
 
     while(ros::ok()){
         //check that master is working
         if(ros::master::check()==true && foreign_master_works==false){
             foreign_master_works=true;   
-           // ROS_INFO_STREAM("CONNECTED TO THE ROS_MASTER_URI:= "<<mmaster.foreign_master_uri());      
+            ROS_INFO_STREAM("CONNECTED TO THE ROS_MASTER_URI:= "<<mmaster.foreign_master_uri());      
                
-            mmaster.foreign2host(remappings);     
+            mmaster.host2foreign(remappings);     
            
          } else if(ros::master::check()==false && foreign_master_works==true){
                 foreign_master_works=false;
-               // ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI:= "<<mmaster.foreign_master_uri());                    
+                ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI:= "<<mmaster.foreign_master_uri());                    
                
            }
    loop_rate_main.sleep();

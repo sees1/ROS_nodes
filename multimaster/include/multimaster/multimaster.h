@@ -1,9 +1,14 @@
+/*
+ * File: multimaster
+ * Author: Denis Tananaev
+ * Date: 23.02.2017
+ *
+ */
 
+#ifndef MULTIMASTER_H
+#define	MULTIMASTER_H
 
-#ifndef INTERCOM2_H
-#define	INTERCOM2_H
-
-#include "intercom2/relay_topic.h"
+#include "multimaster/relay_topic.h"
 
 namespace ros {
     namespace master {
@@ -50,4 +55,4 @@ private:
 
 };
 
-#endif	/* INTERCOM2_H */
+#endif	/* MULTIMASTER_H */
