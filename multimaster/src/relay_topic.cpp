@@ -6,7 +6,7 @@
  */
 
 
-#include "intercom2/relay_topic.h"
+#include "multimaster/relay_topic.h"
 //class which create  multimaster/chatter on the foreign pc 
 relayTopic::relayTopic() {
      ros::NodeHandle n; 

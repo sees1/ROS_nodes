@@ -1,6 +1,6 @@
 # %Tag(FULLTEXT)%
 cmake_minimum_required(VERSION 2.8.3)
-project(intercom2)
+project(multimaster)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 MESSAGE("FALGS: ${CMAKE_CXX_FLAGS}")
@@ -16,32 +16,26 @@ find_package(catkin  REQUIRED COMPONENTS roscpp rospy tf roslib std_msgs)
 #generate_messages(DEPENDENCIES)
 
 ## Declare a catkin package
-catkin_package(  INCLUDE_DIRS include)
+catkin_package(  INCLUDE_DIRS include/multimaster/)
 
 ## Build talker and listener
 include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
 add_library(topic_tools src/shape_shifter.cpp)
 target_link_libraries(topic_tools ${catkin_LIBRARIES})
+add_dependencies(topic_tools multimaster_generate_messages_cpp)
 
-add_executable(host2foreign src/host2foreign.cpp src/intercom2.cpp src/relay_topic.cpp)
-target_link_libraries(host2foreign topic_tools ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(main src/main.cpp src/multimaster.cpp src/relay_topic.cpp)
+target_link_libraries(main topic_tools ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 #add_dependencies(subscriber beginner_tutorials_generate_messages_cpp)
 
-#add_executable(host_actions_app src/host_actions_app.cpp)
-#target_link_libraries(host_actions_app ${catkin_LIBRARIES})
 
-#add_executable(foreign_actions_app src/foreign_actions_app.cpp)
-#target_link_libraries(foreign_actions_app ${catkin_LIBRARIES})
-
-add_executable(foreign2host src/foreign2host.cpp src/intercom2.cpp src/relay_topic.cpp)
-target_link_libraries(foreign2host topic_tools ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(talker2 src/talker2.cpp)
 target_link_libraries(talker2 ${catkin_LIBRARIES} )
-add_dependencies(talker2 intercom2_generate_messages_cpp)
-#add_executable(relay_topic src/relay_topic.cpp)
-#target_link_libraries(relay_topic intercom2 ${catkin_LIBRARIES})
+add_dependencies(talker2 multimaster_generate_messages_cpp)
+
+
 
 
 # %EndTag(FULLTEXT)%

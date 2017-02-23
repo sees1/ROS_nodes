@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <package>
-  <name>intercom2</name>
+  <name>multimaster</name>
   <version>0.0.0</version>
-  <description>The intercom package</description>
+  <description>The multimaster package</description>
 
-  <!-- <maintainer email="dent_10@mail.ru">Den Tan</maintainer> -->
-  <maintainer email="dent_10@mail.ru">denis</maintainer>
+
+  <maintainer email="d.d.tananaev@gmail.com">denis</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
