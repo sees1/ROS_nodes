@@ -20,3 +20,13 @@ It contains:
          * run multimaster: roslaunch multimaster_example multimaster.launch
      * Troubleshooting: 
          * Problem with sending messages between PCs, type on both PC (add to ~/.bashrc): export ROS_HOSTNAME=ip_adress_of_pc(e.g.export ROS_HOSTNAME=192.168.0.10 )   
+* multimaster - the full version of the multimaster whic allows to broadcast the list of topics and tf transforms from host pc to foreign pc. This lists specified in the config.yaml file other properties specified in the launch file (see multimaster.launch). 
+ [![multimaster](https://github.com/Dtananaev/ROS_nodes/blob/master/pictures/mm.JPG)](https://www.youtube.com/watch?v=VnkDEB2HQ4E&feature=youtu.be)
+     * To install use: catkin_make -j1 
+     * To run: 
+         * open launch file ../multimaster/launch/multimaster.launch  and add the ip of foreign PC and port of roscore 
+         * open the file multimaster/config.yaml  and specify the lists of topics that you want to broadcasts to foreign PC
+         * run roscore on both PC (not necessary to run roscore on foreign PC before launching multimaster because it has autoconnect)
+         * run multimaster: roslaunch multimaster multimaster.launch
+     * Troubleshooting: 
+         * Problem with sending messages between PCs, type on both PC (add to ~/.bashrc): export ROS_HOSTNAME=ip_adress_of_pc(e.g.export ROS_HOSTNAME=192.168.0.10 )  
