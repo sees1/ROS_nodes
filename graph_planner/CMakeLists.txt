@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(graph_planner)
 
-
+# Find includes in the build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 MESSAGE("FALGS: ${CMAKE_CXX_FLAGS}")
 
@@ -20,20 +21,22 @@ find_package(catkin REQUIRED COMPONENTS
   genmsg
 )
 
+# Turn on automatic invocation of the MOC & UIC
+set(CMAKE_AUTOMOC ON)
 
-FIND_PACKAGE(Eigen REQUIRED )
-
+FIND_PACKAGE(Eigen3 REQUIRED )
+# Find the QtWidgets library
+find_package(Qt5 REQUIRED COMPONENTS Widgets)
 # Build Viewer
-FIND_PACKAGE( Qt4 REQUIRED )
+#FIND_PACKAGE( Qt REQUIRED )
 SET( QT_USE_QTXML 1 )
 SET( QT_USE_QTOPENGL 1 )
 
-INCLUDE(${QT_USE_FILE})
 
 INCLUDE_DIRECTORIES(
    ${CMAKE_SOURCE_DIR}/src
    ${CMAKE_CURRENT_BINARY_DIR}
-
+ 	
 )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -115,7 +118,6 @@ catkin_package(
 #  CATKIN_DEPENDS roscpp rospy tf turtlesim
 #  DEPENDS system_lib
 CATKIN_DEPENDS message_runtime
-DEPENDS Eigen
 )
 
 
@@ -129,7 +131,7 @@ DEPENDS Eigen
 include_directories(
   ${catkin_INCLUDE_DIRS}
   include
-  ${Eigen_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
 )
 
 add_executable(creator
@@ -140,7 +142,7 @@ add_executable(creator
 )
 
 TARGET_LINK_LIBRARIES(creator
-    ${catkin_LIBRARIES} ${Eigen_LIBRARIES})
+    ${catkin_LIBRARIES} )
 
 
 add_dependencies(creator graph_planner_generate_messages_cpp)
@@ -200,17 +202,8 @@ add_dependencies(creator graph_planner_generate_messages_cpp)
 
 
 
-#add gui
-QT4_WRAP_UI(
-  UI_HDRS
-  src/graph_window.ui
-)
-
-QT4_WRAP_CPP(
-    GUI_MOC
-   src/GraphWindowApp.h
-)
-
+QT5_WRAP_CPP(UI_HDRS src/GraphWindowApp.h)
+QT5_WRAP_UI(GUI_MOC src/graph_window.ui)
 
 
 add_executable(graph_test_gui
@@ -219,9 +212,9 @@ add_executable(graph_test_gui
     ${GUI_MOC}
 )
 
-TARGET_LINK_LIBRARIES(graph_test_gui
-    ${QT_LIBRARIES}  ${catkin_LIBRARIES} ${Eigen_LIBRARIES}
-)
+TARGET_LINK_LIBRARIES(graph_test_gui 
+    ${QT_LIBRARIES}  ${catkin_LIBRARIES}
+ Qt5::Widgets)
 
 
 
