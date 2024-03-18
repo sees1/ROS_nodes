@@ -4,5 +4,4 @@ host2foreign:
   foreign_ip: localhost
   foreign_port: 11311
   msgs_pub_freq: 40.0
-  observ_freq: 200.0
   namespace: host2foreign
