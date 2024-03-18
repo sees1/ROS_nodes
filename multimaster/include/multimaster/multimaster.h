@@ -8,9 +8,7 @@
 #ifndef MULTIMASTER_H
 #define MULTIMASTER_H
 
-#include <multimaster/relay_topic.h>
-
-using std::string;
+#include <multimaster/relay_manager.h>
 
 namespace ros
 {
@@ -20,42 +18,75 @@ void init(const M_string& remappings);
 }
 }  // namespace ros
 
-typedef struct
-{
-  std::string from;
-  std::string to;
-} tfTransform;
-
-
-// The class with functions which read the parameters from launch file and subscribe topics
-class multimaster
+class Multimaster
 {
 public:
-  multimaster() : nh(), pnh("~"){};
-  ~multimaster(){};
+  Multimaster(){};
+  virtual ~Multimaster(){};
 
-  bool getParam();
-  std::string foreign_master_uri();
-  void init(ros::M_string remappings);
+  virtual string get_foreign_master_uri() = 0;
 
-  bool getHostTopicsList();
-  bool getForeignTopicsList();
-  void host2foreign(ros::M_string remappings);
-  void foreign2host(ros::M_string remappings);
-
-  std::vector<std::string> hostTopicsList;
-  std::vector<std::string> foreignTopicsList;
-  std::vector<tfTransform> hostTfList;
-  std::vector<tfTransform> foreignTfList;
-
-  std::string namesp;
-  std::string foreign_master, host_master;
-  std::string foreign_ip;
-  int foreign_port;
-  double msgs_pub_freq, observ_freq;
+  virtual void establish_connection() = 0;
+  virtual void switch_to_host() = 0;
+  virtual void switch_to_foreign() = 0;
 
 private:
+  virtual void setupTimekeeper() = 0;
+  virtual void setupParam() = 0;
+};
+
+class HFMultimaster : public Multimaster
+{
+public:
+  HFMultimaster();
+  virtual ~HFMultimaster();
+
+  virtual string get_foreign_master_uri() override;
+
+  virtual void establish_connection() override;
+  virtual void switch_to_host() override;
+  virtual void switch_to_foreign() override;
+
+private:
+  void init(ros::M_string remappings);
+  virtual void setupTimekeeper() override;
+  virtual void setupParam() override;
+
+private:
+  ros::M_string remappings;
+  string foreign_master, host_master;
+  double msgs_pub_freq;
   ros::NodeHandle nh, pnh;
+  RelayTopicManager* manager;
+  RelayTFManager* tf_manager;
+  Timekeeper* tkeep;
+};
+
+class FHMultimaster : public Multimaster
+{
+public:
+  FHMultimaster();
+  virtual ~FHMultimaster();
+
+  virtual string get_foreign_master_uri() override;
+
+  virtual void establish_connection() override;
+  virtual void switch_to_host() override;
+  virtual void switch_to_foreign() override;
+
+private:
+  void init(ros::M_string remappings);
+  virtual void setupTimekeeper() override;
+  virtual void setupParam() override;
+
+private:
+  ros::M_string remappings;
+  string foreign_master, host_master;
+  double msgs_pub_freq;
+  ros::NodeHandle nh, pnh;
+  RelayTopicManager* manager;
+  RelayTFManager* tf_manager;
+  Timekeeper* tkeep;
 };
 
 #endif /* MULTIMASTER_H */
