@@ -1,0 +1,1495 @@
+diff --git a/.clang-format b/.clang-format
+new file mode 100644
+index 0000000..817fd6d
+--- /dev/null
++++ b/.clang-format
+@@ -0,0 +1,65 @@
++---
++BasedOnStyle: Google
++AccessModifierOffset: -2
++ConstructorInitializerIndentWidth: 2
++AlignEscapedNewlinesLeft: false
++AlignTrailingComments: true
++AllowAllParametersOfDeclarationOnNextLine: false
++AllowShortIfStatementsOnASingleLine: false
++AllowShortLoopsOnASingleLine: false
++AllowShortFunctionsOnASingleLine: None
++AlwaysBreakTemplateDeclarations: true
++AlwaysBreakBeforeMultilineStrings: true
++BreakBeforeBinaryOperators: false
++BreakBeforeTernaryOperators: false
++BreakConstructorInitializersBeforeComma: true
++BinPackParameters: true
++ColumnLimit: 120
++ConstructorInitializerAllOnOneLineOrOnePerLine: true
++DerivePointerBinding: false
++PointerBindsToType: true
++ExperimentalAutoDetectBinPacking: false
++IndentCaseLabels: true
++MaxEmptyLinesToKeep: 1
++NamespaceIndentation: None
++ObjCSpaceBeforeProtocolList: true
++PenaltyBreakBeforeFirstCallParameter: 19
++PenaltyBreakComment: 60
++PenaltyBreakString: 1
++PenaltyBreakFirstLessLess: 1000
++PenaltyExcessCharacter: 1000
++PenaltyReturnTypeOnItsOwnLine: 90
++SpacesBeforeTrailingComments: 2
++Cpp11BracedListStyle: false
++Standard: Auto
++IndentWidth: 2
++TabWidth: 2
++UseTab: Never
++IndentFunctionDeclarationAfterType: false
++SpacesInParentheses: false
++SpacesInAngles: false
++SpaceInEmptyParentheses: false
++SpacesInCStyleCastParentheses: false
++SpaceAfterControlStatementKeyword: true
++SpaceBeforeAssignmentOperators: true
++ContinuationIndentWidth: 4
++SortIncludes: false
++SpaceAfterCStyleCast: false
++
++# Configure each individual brace in BraceWrapping
++BreakBeforeBraces: Custom
++
++# Control of individual brace wrapping cases
++BraceWrapping: {
++    AfterClass: 'true'
++    AfterControlStatement: 'true'
++    AfterEnum : 'true'
++    AfterFunction : 'true'
++    AfterNamespace : 'true'
++    AfterStruct : 'true'
++    AfterUnion : 'true'
++    BeforeCatch : 'true'
++    BeforeElse : 'true'
++    IndentBraces : 'false'
++}
++...
+diff --git a/multimaster/CMakeLists.txt b/multimaster/CMakeLists.txt
+index 5ce4264..91aff33 100644
+--- a/multimaster/CMakeLists.txt
++++ b/multimaster/CMakeLists.txt
+@@ -19,8 +19,18 @@ catkin_package()
+ # # Build talker and listener
+ include_directories(include ${Boost_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
+ 
+-add_executable(foreign2host src/foreign2host.cpp src/multimaster.cpp src/relay_topic.cpp)
++add_executable(foreign2host src/foreign2host.cpp
++                            src/multimaster.cpp
++                            src/relay_topic.cpp
++                            src/relay_config.cpp
++                            src/relay_manager.cpp
++                            src/relay_tf.cpp)
+ target_link_libraries(foreign2host ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+ 
+-add_executable(host2foreign src/host2foreign.cpp src/multimaster.cpp src/relay_topic.cpp)
++add_executable(host2foreign src/host2foreign.cpp                             
++                            src/multimaster.cpp
++                            src/relay_topic.cpp
++                            src/relay_config.cpp
++                            src/relay_manager.cpp
++                            src/relay_tf.cpp)
+ target_link_libraries(host2foreign ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+\ No newline at end of file
+diff --git a/multimaster/config/foreign2host_config.yaml b/multimaster/config/foreign2host_config.yaml
+index 00ac2bf..d06eb11 100644
+--- a/multimaster/config/foreign2host_config.yaml
++++ b/multimaster/config/foreign2host_config.yaml
+@@ -1,8 +1,7 @@
+ foreign2host:
+-  foreign_pubs: [/h1/odometry/filtered]
+-  foreign_tf:   ["map->h1_base"]
++  foreign_pubs: ["/h1/odometry/filtered", "/h2/odometry/filtered"]
++  foreign_tf:   ["map->h1_base", "map->h2_base", "map->h3_base"]
+   foreign_ip: localhost
+   foreign_port: 11311
+   msgs_pub_freq: 40.0
+-  observ_freq: 200.0
+   namespace: foreign2host
+\ No newline at end of file
+diff --git a/multimaster/config/host2foreign_config.yaml b/multimaster/config/host2foreign_config.yaml
+index a1cfc6b..9e98a44 100644
+--- a/multimaster/config/host2foreign_config.yaml
++++ b/multimaster/config/host2foreign_config.yaml
+@@ -4,5 +4,4 @@ host2foreign:
+   foreign_ip: localhost
+   foreign_port: 11311
+   msgs_pub_freq: 40.0
+-  observ_freq: 200.0
+   namespace: host2foreign
+\ No newline at end of file
+diff --git a/multimaster/include/multimaster/multimaster.h b/multimaster/include/multimaster/multimaster.h
+index cc16625..1dd72c6 100644
+--- a/multimaster/include/multimaster/multimaster.h
++++ b/multimaster/include/multimaster/multimaster.h
+@@ -8,9 +8,7 @@
+ #ifndef MULTIMASTER_H
+ #define MULTIMASTER_H
+ 
+-#include <multimaster/relay_topic.h>
+-
+-using std::string;
++#include <multimaster/relay_manager.h>
+ 
+ namespace ros
+ {
+@@ -20,42 +18,75 @@ void init(const M_string& remappings);
+ }
+ }  // namespace ros
+ 
+-typedef struct
++class Multimaster
+ {
+-  std::string from;
+-  std::string to;
+-} tfTransform;
++public:
++  Multimaster(){};
++  virtual ~Multimaster(){};
++
++  virtual string get_foreign_master_uri() = 0;
+ 
++  virtual void establish_connection() = 0;
++  virtual void switch_to_host() = 0;
++  virtual void switch_to_foreign() = 0;
+ 
+-// The class with functions which read the parameters from launch file and subscribe topics
+-class multimaster
++private:
++  virtual void setupTimekeeper() = 0;
++  virtual void setupParam() = 0;
++};
++
++class HFMultimaster : public Multimaster
+ {
+ public:
+-  multimaster() : nh(), pnh("~"){};
+-  ~multimaster(){};
++  HFMultimaster();
++  virtual ~HFMultimaster();
++
++  virtual string get_foreign_master_uri() override;
+ 
+-  bool getParam();
+-  std::string foreign_master_uri();
++  virtual void establish_connection() override;
++  virtual void switch_to_host() override;
++  virtual void switch_to_foreign() override;
++
++private:
+   void init(ros::M_string remappings);
++  virtual void setupTimekeeper() override;
++  virtual void setupParam() override;
+ 
+-  bool getHostTopicsList();
+-  bool getForeignTopicsList();
+-  void host2foreign(ros::M_string remappings);
+-  void foreign2host(ros::M_string remappings);
++private:
++  ros::M_string remappings;
++  string foreign_master, host_master;
++  double msgs_pub_freq;
++  ros::NodeHandle nh, pnh;
++  RelayTopicManager* manager;
++  RelayTFManager* tf_manager;
++  Timekeeper* tkeep;
++};
+ 
+-  std::vector<std::string> hostTopicsList;
+-  std::vector<std::string> foreignTopicsList;
+-  std::vector<tfTransform> hostTfList;
+-  std::vector<tfTransform> foreignTfList;
++class FHMultimaster : public Multimaster
++{
++public:
++  FHMultimaster();
++  virtual ~FHMultimaster();
+ 
+-  std::string namesp;
+-  std::string foreign_master, host_master;
+-  std::string foreign_ip;
+-  int foreign_port;
+-  double msgs_pub_freq, observ_freq;
++  virtual string get_foreign_master_uri() override;
++
++  virtual void establish_connection() override;
++  virtual void switch_to_host() override;
++  virtual void switch_to_foreign() override;
++
++private:
++  void init(ros::M_string remappings);
++  virtual void setupTimekeeper() override;
++  virtual void setupParam() override;
+ 
+ private:
++  ros::M_string remappings;
++  string foreign_master, host_master;
++  double msgs_pub_freq;
+   ros::NodeHandle nh, pnh;
++  RelayTopicManager* manager;
++  RelayTFManager* tf_manager;
++  Timekeeper* tkeep;
+ };
+ 
+ #endif /* MULTIMASTER_H */
+\ No newline at end of file
+diff --git a/multimaster/include/multimaster/relay_config.h b/multimaster/include/multimaster/relay_config.h
+new file mode 100644
+index 0000000..8ba5862
+--- /dev/null
++++ b/multimaster/include/multimaster/relay_config.h
+@@ -0,0 +1,125 @@
++#ifndef RELAY_CONFIG_H
++#define RELAY_CONFIG_H
++
++#include <string>
++#include <vector>
++#include <map>
++
++#include <ros/callback_queue.h>
++#include <ros/ros.h>
++
++#include <topic_tools/parse.h>
++#include <topic_tools/shape_shifter.h>
++
++#include <tf/transform_broadcaster.h>
++#include <tf/transform_listener.h>
++
++#include <std_msgs/Empty.h>
++
++using std::string;
++using std::vector;
++
++typedef struct
++{
++  string from;
++  string to;
++} tfTransform;
++
++class RelayTopicConfig
++{
++public:
++  RelayTopicConfig(){};
++  virtual ~RelayTopicConfig(){};
++
++  virtual const vector<string>& getTopicsList() = 0;
++  virtual string getNamespace() = 0;
++
++private:
++  virtual void setupTopicsList() = 0;
++};
++
++class HostRelayTopicConfig : public RelayTopicConfig
++{
++public:
++  HostRelayTopicConfig();
++  HostRelayTopicConfig(ros::NodeHandle& multimaster_nh);
++  virtual ~HostRelayTopicConfig(){};
++
++  virtual const vector<string>& getTopicsList() override;
++  virtual string getNamespace() override;
++
++private:
++  virtual void setupTopicsList() override;
++
++private:
++  vector<string> hostTopicsList;
++  string topic_ns;
++  ros::NodeHandle config_pnh;
++};
++
++class ForeignRelayTopicConfig : public RelayTopicConfig
++{
++public:
++  ForeignRelayTopicConfig();
++  ForeignRelayTopicConfig(ros::NodeHandle& multimaster_nh);
++  virtual ~ForeignRelayTopicConfig(){};
++
++  virtual const vector<string>& getTopicsList() override;
++  virtual string getNamespace() override;
++
++private:
++  virtual void setupTopicsList() override;
++
++private:
++  vector<string> foreignTopicsList;
++  string topic_ns;
++  ros::NodeHandle config_pnh;
++};
++
++class RelayTFConfig
++{
++public:
++  RelayTFConfig(){};
++  virtual ~RelayTFConfig(){};
++
++  virtual const vector<tfTransform>& getTFList() = 0;
++
++private:
++  virtual void setupTFList() = 0;
++};
++
++class HostRelayTFConfig : public RelayTFConfig
++{
++public:
++  HostRelayTFConfig();
++  HostRelayTFConfig(ros::NodeHandle& multimaster_nh);
++  virtual ~HostRelayTFConfig(){};
++
++  virtual const vector<tfTransform>& getTFList() override;
++
++private:
++  virtual void setupTFList() override;
++
++private:
++  vector<tfTransform> hostTFList;
++  ros::NodeHandle config_pnh;
++};
++
++class ForeignRelayTFConfig : public RelayTFConfig
++{
++public:
++  ForeignRelayTFConfig();
++  ForeignRelayTFConfig(ros::NodeHandle& multimaster_nh);
++  virtual ~ForeignRelayTFConfig(){};
++
++  virtual const vector<tfTransform>& getTFList() override;
++
++private:
++  virtual void setupTFList() override;
++
++private:
++  vector<tfTransform> foreignTFList;
++  ros::NodeHandle config_pnh;
++};
++
++#endif /* CONFIG_RELAY_H */
+\ No newline at end of file
+diff --git a/multimaster/include/multimaster/relay_manager.h b/multimaster/include/multimaster/relay_manager.h
+new file mode 100644
+index 0000000..d596194
+--- /dev/null
++++ b/multimaster/include/multimaster/relay_manager.h
+@@ -0,0 +1,113 @@
++#ifndef RELAY_MANAGER_H
++#define RELAY_MANAGER_H
++
++#include <multimaster/relay_tf.h>
++#include <multimaster/relay_topic.h>
++#include <thread>
++
++class RelayTopicManager
++{
++public:
++  RelayTopicManager(){};
++  virtual ~RelayTopicManager(){};
++
++  virtual void setupConfig() = 0;
++  virtual void setupConfig(ros::NodeHandle& multimaster_nh) = 0;
++  virtual void connectToMaster() = 0;
++  virtual void spin(double rate) = 0;
++};
++
++class HostRelayTopicManager : public RelayTopicManager
++{
++public:
++  HostRelayTopicManager(){};
++  virtual ~HostRelayTopicManager();
++
++  virtual void setupConfig() override;
++  virtual void setupConfig(ros::NodeHandle& multimaster_nh) override;
++  virtual void connectToMaster() override;
++  virtual void spin(double rate) override;
++
++private:
++  RelayTopicConfig* topic_cfg;
++  RelayTopic* topic_connection;
++};
++
++class ForeignRelayTopicManager : public RelayTopicManager
++{
++public:
++  ForeignRelayTopicManager(){};
++  virtual ~ForeignRelayTopicManager();
++
++  virtual void setupConfig() override;
++  virtual void setupConfig(ros::NodeHandle& multimaster_nh) override;
++  virtual void connectToMaster() override;
++  virtual void spin(double rate) override;
++
++private:
++  RelayTopicConfig* topic_cfg;
++  RelayTopic* topic_connection;
++};
++
++class TimeTFManager;
++
++class RelayTFManager
++{
++public:
++  RelayTFManager(){};
++  virtual ~RelayTFManager(){};
++
++  virtual void setupConfig() = 0;
++  virtual void setupConfig(ros::NodeHandle& multimaster_nh) = 0;
++  virtual void connectToMaster() = 0;
++  virtual void spin(double rate, ros::Duration time) = 0;
++};
++
++class HostRelayTFManager : public RelayTFManager
++{
++public:
++  HostRelayTFManager(){};
++  virtual ~HostRelayTFManager();
++
++  virtual void setupConfig() override;
++  virtual void setupConfig(ros::NodeHandle& multimaster_nh) override;
++  virtual void connectToMaster() override;
++  virtual void spin(double rate, ros::Duration time) override;
++
++private:
++  RelayTFConfig* tf_cfg;
++  RelayTF* tf_connection;
++};
++
++class ForeignRelayTFManager : public RelayTFManager
++{
++public:
++  ForeignRelayTFManager(){};
++  virtual ~ForeignRelayTFManager();
++
++  virtual void setupConfig() override;
++  virtual void setupConfig(ros::NodeHandle& multimaster_nh) override;
++  virtual void connectToMaster() override;
++  virtual void spin(double rate, ros::Duration time) override;
++
++private:
++  RelayTFConfig* tf_cfg;
++  RelayTF* tf_connection;
++};
++
++class Timekeeper
++{
++public:
++  Timekeeper(){};
++  ~Timekeeper(){};
++
++  void setHostTime();
++  void setForeignTime();
++  ros::Duration difference();
++
++private:
++  ros::Time host_time;
++  ros::Time foreign_time;
++};
++
++#endif /* RELAY_MANAGER_H */
+\ No newline at end of file
+diff --git a/multimaster/include/multimaster/relay_tf.h b/multimaster/include/multimaster/relay_tf.h
+new file mode 100644
+index 0000000..c396a2d
+--- /dev/null
++++ b/multimaster/include/multimaster/relay_tf.h
+@@ -0,0 +1,26 @@
++#ifndef RELAY_TF_H
++#define RELAY_TF_H
++
++#include <multimaster/relay_config.h>
++
++using boost::shared_ptr;
++using std::map;
++
++class RelayTF
++{
++public:
++  RelayTF(RelayTFConfig* cfg) : relay_nh_(), cfg_(cfg){};
++  ~RelayTF();
++
++  void listen(double rate, ros::Duration time);
++  void setListener(tf::TransformListener* listener);
++  void setBroadcaster(tf::TransformBroadcaster* broadcaster);
++
++private:
++  tf::TransformListener* listener_;
++  tf::TransformBroadcaster* broadcaster_;
++  RelayTFConfig* cfg_;
++  ros::NodeHandle relay_nh_;
++};
++
++#endif /* RELAY_TF_H */
+\ No newline at end of file
+diff --git a/multimaster/include/multimaster/relay_topic.h b/multimaster/include/multimaster/relay_topic.h
+index afeb924..3921865 100644
+--- a/multimaster/include/multimaster/relay_topic.h
++++ b/multimaster/include/multimaster/relay_topic.h
+@@ -1,49 +1,31 @@
+ #ifndef RELAY_TOPIC_H
+ #define RELAY_TOPIC_H
+ 
+-#include <fstream>
+-#include <iostream>
+-#include <ros/callback_queue.h>
+-#include <ros/package.h>
+-#include <ros/ros.h>
+-#include <sstream>
+-#include <std_msgs/Empty.h>
+-#include <string>
++#include <multimaster/relay_config.h>
+ 
+-#include <cstdio>
+-#include <topic_tools/parse.h>
+-#include <topic_tools/shape_shifter.h>
++using boost::shared_ptr;
++using std::map;
+ 
+-#include <tf/transform_broadcaster.h>
+-#include <tf/transform_listener.h>
+-
+-class relayTopic
++class RelayTopic
+ {
+ public:
+-  relayTopic(){};
+-  ~relayTopic(){};
+-
+-  // tf listener
+-  tf::TransformListener listener;
+-  tf::StampedTransform transform;
+-  tf::StampedTransform listen(ros::Time time, std::string from, std::string to);
++  RelayTopic(RelayTopicConfig* cfg) : relay_nh(), cfg_(cfg) {};
++  ~RelayTopic(){};
+ 
+-  // generic subscriber
+-  void subscribe(std::string g_input_topic, std::string namesp, ros::NodeHandle nh);
++  void subscribe();
+ 
+-  // generic callback function which also create generic publisher
+-  void callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event, std::string& topic);
+-
+-  ros::Publisher getPublisher(const std::string& topic, boost::shared_ptr<topic_tools::ShapeShifter const> const& msg,
+-                              boost::shared_ptr<const ros::M_string> const& connection_header);
++private:
++  // for internal use only
++  bool isLatchTopic(shared_ptr<const ros::M_string> const& connection_header);
++  void callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event, string& topic);
++  ros::Publisher setupPublisher(const string& topic, shared_ptr<topic_tools::ShapeShifter const> const& msg,
++                                shared_ptr<const ros::M_string> const& connection_header);
+ 
+ private:
+-  std::map<std::string, ros::Publisher> mPublishers;
+-  std::vector<ros::Subscriber> subs;
+-  std::vector<std::string> topics;
+-  ros::NodeHandle* g_node = NULL;
+-  ros::NodeHandle n;
+-  std::string namesp_;
++  map<string, ros::Publisher> mPublishers;
++  vector<ros::Subscriber> vSubscribers; // hold subscribe
++  ros::NodeHandle relay_nh;
++  RelayTopicConfig* cfg_;
+ };
+ 
+ #endif /* RELAY_TOPIC_H */
+\ No newline at end of file
+diff --git a/multimaster/src/foreign2host.cpp b/multimaster/src/foreign2host.cpp
+index 2b1f3f7..90f464f 100644
+--- a/multimaster/src/foreign2host.cpp
++++ b/multimaster/src/foreign2host.cpp
+@@ -7,47 +7,26 @@
+ 
+ #include <multimaster/multimaster.h>
+ 
+-
+ int main(int argc, char** argv)
+ {
+-  ros::M_string remappings;
++  ros::init(argc, argv, "foreign2host");  // init ROS
+ 
+-  ros::init(argc, argv, "foreign2host");//init ROS
++  Multimaster* mmaster = new FHMultimaster();
+ 
+-  float foreign_master_works = false;//set by default that foreign master is turned off
++  mmaster->switch_to_foreign();  // remap to the foreign master
+ 
+-  multimaster mmaster;
+-  if(mmaster.getParam() == false || mmaster.getForeignTopicsList() == false)
++  // check if foreign master work
++  if (ros::master::check() == false)
+   {
+-    return 0;
++    ROS_ERROR("DISCONNECTED FROM THE ROS_MASTER_URI := %s", mmaster->get_foreign_master_uri().c_str());
+   }
+-
+-  remappings["__master"] = mmaster.foreign_master_uri();//remap to the foreign master
+-  ros::master::init(remappings);
+-
+-  if (ros::master::check() == false)//first check
++  else
+   {
+-    ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI := " << mmaster.foreign_master_uri());
++    ROS_INFO("CONNECTED TO THE ROS_MASTER_URI := %s", mmaster->get_foreign_master_uri().c_str());
++    mmaster->establish_connection();
+   }
+ 
+-  ros::Rate main_rate(mmaster.observ_freq);
+-
+-  while(ros::ok())
+-  {
+-    if(ros::master::check() == true && foreign_master_works == false)//check that master is working
+-    {
+-      foreign_master_works = true;
+-      ROS_INFO_STREAM("CONNECTED TO THE ROS_MASTER_URI := " << mmaster.foreign_master_uri());
+-      mmaster.foreign2host(remappings);
+-    }
+-    else if(ros::master::check() == false && foreign_master_works == true)
+-    {
+-      foreign_master_works = false;
+-      ROS_ERROR_STREAM("DISCONNECTED FROM THE ROS_MASTER_URI := " << mmaster.foreign_master_uri());
+-    }
+-
+-    main_rate.sleep();
+-  }
++  delete mmaster;
+ 
+   return 0;
+ }
+\ No newline at end of file
+diff --git a/multimaster/src/host2foreign.cpp b/multimaster/src/host2foreign.cpp
+index 8e0debf..4304c32 100644
+--- a/multimaster/src/host2foreign.cpp
++++ b/multimaster/src/host2foreign.cpp
+@@ -9,40 +9,23 @@
+ 
+ int main(int argc, char** argv)
+ {
+-  ros::M_string remappings;
+-
+   ros::init(argc, argv, "host2foreign");  // init ROS
+ 
+-  float foreign_master_works = false;  // set by default that foreign master is turned off
+-
+-  multimaster mmaster;
++  Multimaster* mmaster = new HFMultimaster();
+ 
+-  remappings["__master"] = mmaster.get_foreign_master_uri();  // remap to the foreign master
+-  ros::master::init(remappings);
++  mmaster->switch_to_foreign();
+ 
+-  if (ros::master::check() == false)  // first check
++  if (ros::master::check() == false)
+   {
+-    ROS_WARN("DISCONNECTED FROM THE ROS_MASTER_URI := %s", mmaster.get_foreign_master_uri().c_str());
++    ROS_WARN("DISCONNECTED FROM THE ROS_MASTER_URI := %s", mmaster->get_foreign_master_uri().c_str());
+   }
+-
+-  ros::Rate main_rate(mmaster.get_observ_frequency());
+-
+-  while (ros::ok())
++  else
+   {
+-    if (ros::master::check() == true && foreign_master_works == false)  // check that master is working
+-    {
+-      foreign_master_works = true;
+-      ROS_INFO("CONNECTED TO THE ROS_MASTER_URI := %s", mmaster.get_foreign_master_uri().c_str());
+-      mmaster.host2foreign(remappings);
+-    }
+-    else if (ros::master::check() == false && foreign_master_works == true)
+-    {
+-      foreign_master_works = false;
+-      ROS_WARN("DISCONNECTED FROM THE ROS_MASTER_URI := %s", mmaster.get_foreign_master_uri().c_str());
+-    }
+-
+-    main_rate.sleep();
++    ROS_INFO("CONNECTED TO THE ROS_MASTER_URI := %s", mmaster->get_foreign_master_uri().c_str());
++    mmaster->establish_connection();
+   }
+ 
++  delete mmaster;
++
+   return 0;
+ }
+\ No newline at end of file
+diff --git a/multimaster/src/multimaster.cpp b/multimaster/src/multimaster.cpp
+index c5f9878..889cf23 100644
+--- a/multimaster/src/multimaster.cpp
++++ b/multimaster/src/multimaster.cpp
+@@ -7,171 +7,166 @@
+ 
+ #include <multimaster/multimaster.h>
+ 
+-using std::string;
+-using std::vector;
++HFMultimaster::HFMultimaster() : nh(), pnh("~"), Multimaster()
++{
++  setupParam();
++  manager = new HostRelayTopicManager();
++  tf_manager = new HostRelayTFManager();
++  tkeep = new Timekeeper();
++}
++
++FHMultimaster::FHMultimaster() : nh(), pnh("~"), Multimaster()
++{
++  setupParam();
++  manager = new ForeignRelayTopicManager();
++  tf_manager = new ForeignRelayTFManager();
++  tkeep = new Timekeeper();
++}
++
++HFMultimaster::~HFMultimaster()
++{
++  delete manager;
++  delete tf_manager;
++  delete tkeep;
++}
++
++FHMultimaster::~FHMultimaster()
++{
++  delete manager;
++  delete tf_manager;
++  delete tkeep;
++}
+ 
+-std::string multimaster::foreign_master_uri()
++string HFMultimaster::get_foreign_master_uri()
+ {
+   return foreign_master;
+ }
+ 
+-bool multimaster::getHostTopicsList()
++string FHMultimaster::get_foreign_master_uri()
+ {
+-  if (!pnh.getParam("local_pubs",
+-                    hostTopicsList) || hostTopicsList.size() == 0)  // get list of publisher from host
+-  {
+-    ROS_ERROR("List of local publisher is not present in config or empty!");
+-    return false;
+-  }
++  return foreign_master;
++}
+ 
+-  vector<string> local_tf_copy;
+-  if (!pnh.getParam("local_tf",
+-                           local_tf_copy) || local_tf_copy.size() == 0)  // get list of transforms from host
+-  {
+-    ROS_WARN("List of local tf transformation is not present in config or empty! Ignore if you dont need it!");
+-  }
+-  else
+-  {
+-    for (auto& transform_name : local_tf_copy)
+-    {
+-      string delim = "->";
+-      size_t split = transform_name.find(delim);
+-      hostTfList.push_back({ transform_name.substr(0, split), transform_name.substr(split + delim.length()) });
+-    }
+-    ROS_INFO("List of local TF is set!");
+-  }
++void HFMultimaster::switch_to_host()
++{
++  remappings["__master"] = host_master;
++  ros::master::init(remappings);
++}
+ 
+-  return true;
++void FHMultimaster::switch_to_host()
++{
++  remappings["__master"] = host_master;
++  ros::master::init(remappings);
+ }
+ 
+-bool multimaster::getForeignTopicsList()
++void HFMultimaster::switch_to_foreign()
+ {
+-  if (!pnh.getParam("foreign_pubs",
+-                    foreignTopicsList) ||
+-      foreignTopicsList.size() == 0)  // get list of publisher from foreign master
+-  {
+-    ROS_ERROR("List of foreign publisher is not present in config or empty!");
+-    return false;
+-  }
++  remappings["__master"] = foreign_master;
++  ros::master::init(remappings);
++}
++
++void FHMultimaster::switch_to_foreign()
++{
++  remappings["__master"] = foreign_master;
++  ros::master::init(remappings);
++}
+ 
+-  vector<string> foreign_tf_copy;
+-  if (!pnh.getParam("foreign_tf",
+-                           foreign_tf_copy) ||
+-      foreign_tf_copy.size() == 0)  // get list of transforms from foreign master
++void HFMultimaster::setupTimekeeper()
++{
++  tkeep->setForeignTime();
++
++  switch_to_host();
++
++  tkeep->setHostTime();
++}
++
++void FHMultimaster::setupTimekeeper()
++{
++  tkeep->setForeignTime();
++
++  switch_to_host();
++
++  tkeep->setHostTime();
++}
++
++void HFMultimaster::setupParam()
++{
++  string foreign_ip_temp;
++  int    foreign_port_temp;
++  // Read ip adress and port of foreign master from the launch file
++  if (!pnh.getParam("foreign_ip", foreign_ip_temp) || foreign_ip_temp == "")
+   {
+-    ROS_WARN("List of foreign tf transformation is not present in config or empty! Ignore if you dont need it!");
++    ROS_ERROR("PLEASE SPECIFY THE IP ADRESS OF FOREIGN MASTER IN THE CONFIG FILE");
++    std::terminate();
+   }
+-  else
++  else if (!pnh.getParam("foreign_port", foreign_port_temp))
+   {
+-    for (auto& transform_name : foreign_tf_copy)
+-    {
+-      string delim = "->";
+-      size_t split = transform_name.find(delim);
+-      foreignTfList.push_back({ transform_name.substr(0, split), transform_name.substr(split + delim.length()) });
+-    }
+-    ROS_INFO("List of foreign TF is set!");
++    ROS_ERROR("PLEASE SPECIFY THE PORT OF FOREIGN MASTER IN THE CONFIG FILE");
++    std::terminate();
+   }
+ 
+-  return true;
++  // Get the other parameters from the launch file
++  pnh.param<double>("msgs_pub_freq", msgs_pub_freq, 10.0);
++
++  // Get the host and foreign master_uri
++  foreign_master = "http://" + foreign_ip_temp + ":" + std::to_string(foreign_port_temp) + "/";
++  host_master = ros::master::getURI();
+ }
+ 
+-bool multimaster::getParam()
++void FHMultimaster::setupParam()
+ {
++  string foreign_ip_temp;
++  int    foreign_port_temp;
+   // Read ip adress and port of foreign master from the launch file
+-  if (!pnh.getParam("foreign_ip", foreign_ip) || foreign_ip == "")
++  if (!pnh.getParam("foreign_ip", foreign_ip_temp) || foreign_ip_temp == "")
+   {
+-    ROS_ERROR("PLEASE SPECIFY THE IP ADRESS OF FOREIGN MASTER IN THE LAUNCH FILE");
+-    return false;
++    ROS_ERROR("PLEASE SPECIFY THE IP ADRESS OF FOREIGN MASTER IN THE CONFIG FILE");
++    std::terminate();
+   }
+-  else if (!pnh.getParam("foreign_port", foreign_port))
++  else if (!pnh.getParam("foreign_port", foreign_port_temp))
+   {
+-    ROS_ERROR("PLEASE SPECIFY THE PORT  OF FOREIGN MASTER IN THE LAUNCH FILE");
+-    return false;
++    ROS_ERROR("PLEASE SPECIFY THE PORT OF FOREIGN MASTER IN THE CONFIG FILE");
++    std::terminate();
+   }
+ 
+   // Get the other parameters from the launch file
+   pnh.param<double>("msgs_pub_freq", msgs_pub_freq, 10.0);
+-  pnh.param<double>("observ_freq", observ_freq, 200.0);
+-  pnh.param<std::string>("namespace", namesp, "multimaster");
+ 
+   // Get the host and foreign master_uri
+-  foreign_master = "http://" + foreign_ip + ":" + std::to_string(foreign_port) + "/";
++  foreign_master = "http://" + foreign_ip_temp + ":" + std::to_string(foreign_port_temp) + "/";
+   host_master = ros::master::getURI();
+-
+-  return true;
+ }
+ 
+-void multimaster::host2foreign(ros::M_string remappings)
++void HFMultimaster::establish_connection()
+ {
+-  ros::Rate loop_rate(msgs_pub_freq);
++  setupTimekeeper();
+ 
+-  tf::TransformBroadcaster broadcaster;
++  manager->setupConfig(pnh);
++  tf_manager->setupConfig(pnh);
+ 
+-  ros::Time foreign_time = ros::Time::now();
++  manager->connectToMaster();
++  tf_manager->connectToMaster();
+ 
+-  remappings["__master"] = host_master;
+-  ros::master::init(remappings);
+-
+-  ros::Time host_time = ros::Time::now();
+-  ros::Duration difference = host_time - foreign_time;
+-
+-  relayTopic pc;
+-  for (int i = 0; i < hostTopicsList.size(); ++i)
+-  {
+-    // Create subscribers in the host and connect them to the foreign topics
+-    pc.subscribe(hostTopicsList[i], namesp, nh);
+-    ROS_INFO("hostTopicsList [%i] = %s", i, hostTopicsList[i].c_str());
+-  }
+-
+-  remappings["__master"] = foreign_master;
+-  ros::master::init(remappings);
++  switch_to_foreign();
+ 
+-  ros::Duration(0.5).sleep();
+-  while (ros::ok() && ros::master::check() == true)
+-  {
+-    ros::spinOnce();
+-    loop_rate.sleep();
+-
+-    for (int i = 0; i < hostTfList.size(); ++i)
+-    {
+-      broadcaster.sendTransform(
+-          tf::StampedTransform(pc.listen(ros::Time::now() + difference, hostTfList[i].from, hostTfList[i].to)));
+-    }
+-  }
++  tf_manager->spin(msgs_pub_freq, tkeep->difference());
++  manager->spin(msgs_pub_freq);
+ }
+ 
+-void multimaster::foreign2host(ros::M_string remappings)
++void FHMultimaster::establish_connection()
+ {
+-  relayTopic pc2;
++  setupTimekeeper();
+ 
+-  for (int i = 0; i < foreignTopicsList.size(); ++i)
+-  {
+-    // Create subscribers in the host and connect them to the foreign topics
+-    pc2.subscribe(foreignTopicsList[i], namesp, nh);
+-    ROS_INFO("foreignTopicsList [ %i ] = %s", i, foreignTopicsList[i].c_str());
+-  }
++  manager->setupConfig(pnh);
++  tf_manager->setupConfig(pnh);
+ 
+-  ros::Time foreign_time = ros::Time::now();
+-  remappings["__master"] = host_master;
+-  ros::master::init(remappings);
+-
+-  ros::Time host_time = ros::Time::now();
+-  ros::Duration difference = host_time - foreign_time;
++  switch_to_foreign();
+ 
+-  tf::TransformBroadcaster broadcaster;
++  manager->connectToMaster();
++  tf_manager->connectToMaster();
+ 
+-  ros::Rate r(msgs_pub_freq);
++  switch_to_host();
+ 
+-  ros::Duration(0.5).sleep();
+-  while (ros::ok() && ros::master::check() == true)
+-  {
+-    ros::spinOnce();
+-    r.sleep();
+-
+-    for (int i = 0; i < foreignTfList.size(); ++i)
+-    {
+-      broadcaster.sendTransform(
+-          tf::StampedTransform(pc2.listen(ros::Time::now() + difference, foreignTfList[i].from, foreignTfList[i].to)));
+-    }
+-  }
++  tf_manager->spin(msgs_pub_freq, tkeep->difference());
++  manager->spin(msgs_pub_freq);
+ }
+\ No newline at end of file
+diff --git a/multimaster/src/relay_config.cpp b/multimaster/src/relay_config.cpp
+new file mode 100644
+index 0000000..2c5bafb
+--- /dev/null
++++ b/multimaster/src/relay_config.cpp
+@@ -0,0 +1,163 @@
++#include <multimaster/relay_config.h>
++
++HostRelayTopicConfig::HostRelayTopicConfig(ros::NodeHandle& multimaster_nh) : config_pnh(multimaster_nh), RelayTopicConfig()
++{
++  if(!config_pnh.getParam("namespace", topic_ns))
++  {
++    ROS_ERROR("namespace field not present in config file!");
++    std::terminate();
++  }
++  setupTopicsList();
++}
++
++HostRelayTopicConfig::HostRelayTopicConfig() : config_pnh(), RelayTopicConfig()
++{
++  if(!config_pnh.getParam("namespace", topic_ns))
++  {
++    ROS_ERROR("namespace field not present in config file!");
++    std::terminate();
++  }
++  setupTopicsList();
++}
++
++
++ForeignRelayTopicConfig::ForeignRelayTopicConfig(ros::NodeHandle& multimaster_nh) : config_pnh(multimaster_nh), RelayTopicConfig()
++{
++  if(!config_pnh.getParam("namespace", topic_ns))
++  {
++    ROS_ERROR("namespace field not present in config file!");
++    std::terminate();
++  }
++  setupTopicsList();
++}
++
++ForeignRelayTopicConfig::ForeignRelayTopicConfig() : config_pnh(), RelayTopicConfig()
++{
++  if(!config_pnh.getParam("namespace", topic_ns))
++  {
++    ROS_ERROR("namespace field not present in config file!");
++    std::terminate();
++  }
++  setupTopicsList();
++}
++
++HostRelayTFConfig::HostRelayTFConfig(ros::NodeHandle& multimaster_nh) : config_pnh(multimaster_nh), RelayTFConfig()
++{
++  setupTFList();
++}
++
++HostRelayTFConfig::HostRelayTFConfig() : config_pnh(), RelayTFConfig()
++{
++  setupTFList();
++}
++
++ForeignRelayTFConfig::ForeignRelayTFConfig(ros::NodeHandle& multimaster_nh) : config_pnh(multimaster_nh), RelayTFConfig()
++{
++  setupTFList();
++}
++
++ForeignRelayTFConfig::ForeignRelayTFConfig() : config_pnh(), RelayTFConfig()
++{
++  setupTFList();
++}
++
++const vector<string>& HostRelayTopicConfig::getTopicsList()
++{
++  return hostTopicsList;
++}
++
++const vector<string>& ForeignRelayTopicConfig::getTopicsList()
++{
++  return foreignTopicsList;
++}
++
++string HostRelayTopicConfig::getNamespace()
++{
++  return topic_ns;
++}
++
++string ForeignRelayTopicConfig::getNamespace()
++{
++  return topic_ns;
++}
++
++const vector<tfTransform>& HostRelayTFConfig::getTFList()
++{
++  return hostTFList;
++}
++
++const vector<tfTransform>& ForeignRelayTFConfig::getTFList()
++{
++  return foreignTFList;
++}
++
++void HostRelayTopicConfig::setupTopicsList()
++{
++  if (!config_pnh.getParam("local_pubs",
++                           hostTopicsList) ||
++      hostTopicsList.size() == 0)  // get list of publisher from host
++  {
++    ROS_ERROR("List of local publisher is not present in config or empty!");
++    std::terminate();
++  }
++  else
++  {
++    ROS_INFO("List of local publisher is setup properly!");
++  }
++}
++
++void ForeignRelayTopicConfig::setupTopicsList()
++{
++  if (!config_pnh.getParam("foreign_pubs",
++                    foreignTopicsList) ||
++      foreignTopicsList.size() == 0)  // get list of publisher from foreign master
++  {
++    ROS_ERROR("List of foreign publisher is not present in config or empty!");
++    std::terminate();
++  }
++  else
++  {
++    ROS_INFO("List of local publisher is setup properly!");
++  }
++}
++
++void HostRelayTFConfig::setupTFList()
++{
++  vector<string> local_tf_copy;
++  if (!config_pnh.getParam("local_tf",
++                           local_tf_copy) || local_tf_copy.size() == 0)  // get list of transforms from host
++  {
++    ROS_WARN("List of local tf transformation is not present in config or empty! Ignore if you dont need it!");
++  }
++  else
++  {
++    for (auto& transform_name : local_tf_copy)
++    {
++      string delim = "->";
++      size_t split = transform_name.find(delim);
++      hostTFList.push_back({ transform_name.substr(0, split), transform_name.substr(split + delim.length()) });
++    }
++    ROS_INFO("List of local TF is set!");
++  }
++}
++
++void ForeignRelayTFConfig::setupTFList()
++{
++  vector<string> foreign_tf_copy;
++  if (!config_pnh.getParam("foreign_tf",
++                    foreign_tf_copy) ||
++      foreign_tf_copy.size() == 0)  // get list of transforms from foreign master
++  {
++    ROS_WARN("List of foreign tf transformation is not present in config or empty! Ignore if you dont need it!");
++  }
++  else
++  {
++    for (auto& transform_name : foreign_tf_copy)
++    {
++      string delim = "->";
++      size_t split = transform_name.find(delim);
++      foreignTFList.push_back({ transform_name.substr(0, split), transform_name.substr(split + delim.length()) });
++    }
++    ROS_INFO("List of foreign TF is set!");
++  }
++}
+\ No newline at end of file
+diff --git a/multimaster/src/relay_manager.cpp b/multimaster/src/relay_manager.cpp
+new file mode 100644
+index 0000000..a2f719a
+--- /dev/null
++++ b/multimaster/src/relay_manager.cpp
+@@ -0,0 +1,149 @@
++#include <multimaster/relay_manager.h>
++
++HostRelayTopicManager::~HostRelayTopicManager()
++{
++  delete topic_cfg;
++  delete topic_connection;
++}
++
++ForeignRelayTopicManager::~ForeignRelayTopicManager()
++{
++  delete topic_cfg;
++  delete topic_connection;
++}
++
++HostRelayTFManager::~HostRelayTFManager()
++{
++  delete tf_cfg;
++  delete tf_connection;
++}
++
++ForeignRelayTFManager::~ForeignRelayTFManager()
++{
++  delete tf_cfg;
++  delete tf_connection;
++}
++
++
++void HostRelayTopicManager::setupConfig()
++{
++  topic_cfg = new HostRelayTopicConfig();
++}
++
++void HostRelayTopicManager::setupConfig(ros::NodeHandle& multimaster_nh)
++{
++  topic_cfg = new HostRelayTopicConfig(multimaster_nh);
++}
++
++void ForeignRelayTopicManager::setupConfig()
++{
++  topic_cfg = new ForeignRelayTopicConfig();
++}
++
++void ForeignRelayTopicManager::setupConfig(ros::NodeHandle& multimaster_nh)
++{
++  topic_cfg = new ForeignRelayTopicConfig(multimaster_nh);
++}
++
++void HostRelayTFManager::setupConfig()
++{
++  tf_cfg = new HostRelayTFConfig();
++}
++
++void HostRelayTFManager::setupConfig(ros::NodeHandle& multimaster_nh)
++{
++  tf_cfg = new HostRelayTFConfig(multimaster_nh);
++}
++
++void ForeignRelayTFManager::setupConfig()
++{
++  tf_cfg = new ForeignRelayTFConfig();
++}
++
++void ForeignRelayTFManager::setupConfig(ros::NodeHandle& multimaster_nh)
++{
++  tf_cfg = new ForeignRelayTFConfig(multimaster_nh);
++}
++
++void HostRelayTopicManager::connectToMaster()
++{
++  topic_connection = new RelayTopic(topic_cfg);
++  topic_connection->subscribe();
++}
++
++void ForeignRelayTopicManager::connectToMaster()
++{
++  topic_connection = new RelayTopic(topic_cfg);
++  topic_connection->subscribe();
++}
++
++void HostRelayTFManager::connectToMaster()
++{
++  tf_connection = new RelayTF(tf_cfg);
++  tf_connection->setListener(new tf::TransformListener);
++}
++
++void ForeignRelayTFManager::connectToMaster()
++{
++  tf_connection = new RelayTF(tf_cfg);
++  tf_connection->setListener(new tf::TransformListener);
++}
++
++void HostRelayTopicManager::spin(double rate)
++{
++  ros::Rate loop_rate(rate);
++  ros::Duration(0.5).sleep();
++  while (ros::ok() && ros::master::check() == true)
++  {
++    ros::spinOnce();
++    loop_rate.sleep();
++  }
++}
++
++void ForeignRelayTopicManager::spin(double rate)
++{
++  ros::Rate loop_rate(rate);
++  ros::Duration(0.5).sleep();
++  while (ros::ok() && ros::master::check() == true)
++  {
++    ros::spinOnce();
++    loop_rate.sleep();//
++  }
++}
++
++void HostRelayTFManager::spin(double rate, ros::Duration diff)
++{
++  tf_connection->setBroadcaster(new tf::TransformBroadcaster);
++  std::thread t(
++    [rate, diff, this]{
++      this->tf_connection->listen(rate, diff);
++    }
++  );
++  t.detach();
++}
++
++void ForeignRelayTFManager::spin(double rate, ros::Duration diff)
++{
++  tf_connection->setBroadcaster(new tf::TransformBroadcaster);
++  std::thread t(
++    [rate, diff, this]{
++      this->tf_connection->listen(rate, diff);
++    }
++  );
++  t.detach();
++}
++
++void Timekeeper::setHostTime()
++{
++  host_time = ros::Time::now();
++}
++
++void Timekeeper::setForeignTime()
++{
++  foreign_time = ros::Time::now();
++}
++
++ros::Duration Timekeeper::difference()
++{
++  return ros::Duration(foreign_time - host_time);
++}
+\ No newline at end of file
+diff --git a/multimaster/src/relay_tf.cpp b/multimaster/src/relay_tf.cpp
+new file mode 100644
+index 0000000..0437939
+--- /dev/null
++++ b/multimaster/src/relay_tf.cpp
+@@ -0,0 +1,44 @@
++#include <thread>
++#include <mutex>
++#include <multimaster/relay_tf.h>
++
++RelayTF::~RelayTF()
++{
++  delete listener_;
++  delete broadcaster_;
++}
++
++void RelayTF::setListener(tf::TransformListener* listener)
++{
++  listener_ = listener;
++}
++
++void RelayTF::setBroadcaster(tf::TransformBroadcaster* broadcaster)
++{
++  broadcaster_ = broadcaster;
++}
++
++void RelayTF::listen(double rate, ros::Duration time)
++{
++  // ros::Duration(5).sleep();
++  ros::Rate loop_rate(rate);
++  while(ros::ok())
++  {
++    try
++    {
++      for (const auto& tf_name : cfg_->getTFList())
++      {
++        tf::StampedTransform transform;
++        listener_->waitForTransform(tf_name.from, tf_name.to, ros::Time::now() - time - ros::Duration(1), ros::Duration(1.0));
++        listener_->lookupTransform(tf_name.from, tf_name.to, ros::Time::now() - time - ros::Duration(1), transform);
++        transform.stamp_ = ros::Time::now();
++        broadcaster_->sendTransform(transform);
++      }
++    }
++    catch (tf::TransformException ex)
++    {
++      ROS_ERROR("%s", ex.what());
++    }
++    loop_rate.sleep();
++  }
++}
+\ No newline at end of file
+diff --git a/multimaster/src/relay_topic.cpp b/multimaster/src/relay_topic.cpp
+index 08128c0..ce2e595 100644
+--- a/multimaster/src/relay_topic.cpp
++++ b/multimaster/src/relay_topic.cpp
+@@ -7,70 +7,62 @@
+ 
+ #include <multimaster/relay_topic.h>
+ 
+-// class which create  multimaster/chatter on the foreign pc
+-void relayTopic::callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event, std::string& topic)
++// If the input topic is latched, make the output topic latched.
++bool RelayTopic::isLatchTopic(shared_ptr<const ros::M_string> const& connection_header)
+ {
+-  std::string publisher_name = msg_event.getPublisherName();
+-
+-  boost::shared_ptr<topic_tools::ShapeShifter const> const& msg = msg_event.getConstMessage();
+-  boost::shared_ptr<const ros::M_string> const& connection_header = msg_event.getConnectionHeaderPtr();
+-
+-  ros::Publisher publ = relayTopic::getPublisher(namesp_ + "/" + topic, msg, connection_header);
++  if (connection_header)
++  {
++    ros::M_string::const_iterator it = connection_header->find("latching");
++    if ((it != connection_header->end()) && (it->second == "1"))
++    {
++      ROS_INFO("Input topic is latched; latching output topic to match");
++      return true;
++    }
++  }
+ 
+-  publ.publish(msg);
++  return false;
+ }
+ 
+-ros::Publisher relayTopic::getPublisher(const std::string& topic,
+-                                        boost::shared_ptr<topic_tools::ShapeShifter const> const& msg,
+-                                        boost::shared_ptr<const ros::M_string> const& connection_header)
++ros::Publisher RelayTopic::setupPublisher(const string& topic,
++                                          shared_ptr<topic_tools::ShapeShifter const> const& msg,
++                                          shared_ptr<const ros::M_string> const& connection_header)
+ {
+   if (mPublishers.find(topic) == mPublishers.end())
+   {
+-    bool latch = false;
++    bool latch = isLatchTopic(connection_header);
+ 
+-    // If the input topic is latched, make the output topic latched.
+-    if (connection_header)
+-    {
+-      ros::M_string::const_iterator it = connection_header->find("latching");
+-
+-      if ((it != connection_header->end()) && (it->second == "1"))
+-      {
+-        ROS_DEBUG("input topic is latched; latching output topic to match");
+-        latch = true;
+-      }
+-    }
+-
+-    // advertise new topic
+-    mPublishers[topic] = msg->advertise(n, topic, 10, latch);
++    mPublishers[topic] = msg->advertise(relay_nh, topic, 10, latch);// advertise new topic
+   }
+ 
+   return mPublishers[topic];
+ }
+ 
+-void relayTopic::subscribe(std::string g_input_topic, std::string namesp, ros::NodeHandle nh)
++void RelayTopic::callback(const ros::MessageEvent<topic_tools::ShapeShifter>& msg_event, string& topic)
+ {
+-  ros::Subscriber subscriber = nh.subscribe<topic_tools::ShapeShifter>(
+-      g_input_topic, 10, boost::bind(&relayTopic::callback, this, _1, g_input_topic));
++  string publisher_name = msg_event.getPublisherName();
++
++  shared_ptr<topic_tools::ShapeShifter const> const& msg = msg_event.getConstMessage();
++  shared_ptr<const ros::M_string> const& connection_header = msg_event.getConnectionHeaderPtr();
+ 
+-  subs.push_back(subscriber);
++  ros::Publisher publ = setupPublisher(cfg_->getNamespace() + "/" + topic, msg, connection_header);
+ 
+-  namesp_ = namesp;
++  publ.publish(msg);
+ }
+ 
+-tf::StampedTransform relayTopic::listen(ros::Time time, std::string from, std::string to)
++void RelayTopic::subscribe()
+ {
+-  // tf::TransformListener listener;
+-  // tf::StampedTransform transform;
+-  try
++  if(cfg_ == nullptr)
+   {
+-    listener.waitForTransform(from, to, time, ros::Duration(3.0));
+-    listener.lookupTransform(from, to, time, transform);
+-    transform.stamp_ = ros::Time::now();
++    ROS_ERROR("Config is not setup!");
++    std::terminate();
+   }
+-  catch (tf::TransformException ex)
++  for (const auto& topic : cfg_->getTopicsList())
+   {
+-    ROS_ERROR("%s", ex.what());
+-    // ros::Duration(1.0).sleep();
++    ros::Subscriber subscriber =
++        relay_nh.subscribe<topic_tools::ShapeShifter>(topic, 10, boost::bind(&RelayTopic::callback, this, _1, topic));
++
++    ROS_INFO("Subscribing on %s topic %s", topic.c_str(), subscriber ? "success!" : "fail!");
++
++    vSubscribers.push_back(subscriber);
+   }
+-  return transform;
+ }
+\ No newline at end of file
