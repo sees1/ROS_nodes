@@ -23,15 +23,14 @@ bool RelayTopic::isLatchTopic(shared_ptr<const ros::M_string> const& connection_
   return false;
 }
 
-ros::Publisher RelayTopic::setupPublisher(const string& topic,
-                                          shared_ptr<topic_tools::ShapeShifter const> const& msg,
+ros::Publisher RelayTopic::setupPublisher(const string& topic, shared_ptr<topic_tools::ShapeShifter const> const& msg,
                                           shared_ptr<const ros::M_string> const& connection_header)
 {
   if (mPublishers.find(topic) == mPublishers.end())
   {
     bool latch = isLatchTopic(connection_header);
 
-    mPublishers[topic] = msg->advertise(relay_nh, topic, 10, latch);// advertise new topic
+    mPublishers[topic] = msg->advertise(relay_nh, topic, 10, latch);  // advertise new topic
   }
 
   return mPublishers[topic];
@@ -51,7 +50,7 @@ void RelayTopic::callback(const ros::MessageEvent<topic_tools::ShapeShifter>& ms
 
 void RelayTopic::subscribe()
 {
-  if(cfg_ == nullptr)
+  if (cfg_ == nullptr)
   {
     ROS_ERROR("Config is not setup!");
     std::terminate();

@@ -9,7 +9,7 @@ using std::map;
 class RelayTopic
 {
 public:
-  RelayTopic(RelayTopicConfig* cfg) : relay_nh(), cfg_(cfg) {};
+  RelayTopic(RelayTopicConfig* cfg) : relay_nh(), cfg_(cfg){};
   ~RelayTopic(){};
 
   void subscribe();
@@ -23,7 +23,7 @@ private:
 
 private:
   map<string, ros::Publisher> mPublishers;
-  vector<ros::Subscriber> vSubscribers; // hold subscribe
+  vector<ros::Subscriber> vSubscribers;  // hold subscribe
   ros::NodeHandle relay_nh;
   RelayTopicConfig* cfg_;
 };
