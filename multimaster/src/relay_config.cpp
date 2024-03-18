@@ -1,8 +1,9 @@
 #include <multimaster/relay_config.h>
 
-HostRelayTopicConfig::HostRelayTopicConfig(ros::NodeHandle& multimaster_nh) : config_pnh(multimaster_nh), RelayTopicConfig()
+HostRelayTopicConfig::HostRelayTopicConfig(ros::NodeHandle& multimaster_nh)
+  : config_pnh(multimaster_nh), RelayTopicConfig()
 {
-  if(!config_pnh.getParam("namespace", topic_ns))
+  if (!config_pnh.getParam("namespace", topic_ns))
   {
     ROS_ERROR("namespace field not present in config file!");
     std::terminate();
@@ -12,7 +13,7 @@ HostRelayTopicConfig::HostRelayTopicConfig(ros::NodeHandle& multimaster_nh) : co
 
 HostRelayTopicConfig::HostRelayTopicConfig() : config_pnh(), RelayTopicConfig()
 {
-  if(!config_pnh.getParam("namespace", topic_ns))
+  if (!config_pnh.getParam("namespace", topic_ns))
   {
     ROS_ERROR("namespace field not present in config file!");
     std::terminate();
@@ -20,10 +21,10 @@ HostRelayTopicConfig::HostRelayTopicConfig() : config_pnh(), RelayTopicConfig()
   setupTopicsList();
 }
 
-
-ForeignRelayTopicConfig::ForeignRelayTopicConfig(ros::NodeHandle& multimaster_nh) : config_pnh(multimaster_nh), RelayTopicConfig()
+ForeignRelayTopicConfig::ForeignRelayTopicConfig(ros::NodeHandle& multimaster_nh)
+  : config_pnh(multimaster_nh), RelayTopicConfig()
 {
-  if(!config_pnh.getParam("namespace", topic_ns))
+  if (!config_pnh.getParam("namespace", topic_ns))
   {
     ROS_ERROR("namespace field not present in config file!");
     std::terminate();
@@ -33,7 +34,7 @@ ForeignRelayTopicConfig::ForeignRelayTopicConfig(ros::NodeHandle& multimaster_nh
 
 ForeignRelayTopicConfig::ForeignRelayTopicConfig() : config_pnh(), RelayTopicConfig()
 {
-  if(!config_pnh.getParam("namespace", topic_ns))
+  if (!config_pnh.getParam("namespace", topic_ns))
   {
     ROS_ERROR("namespace field not present in config file!");
     std::terminate();
@@ -51,7 +52,8 @@ HostRelayTFConfig::HostRelayTFConfig() : config_pnh(), RelayTFConfig()
   setupTFList();
 }
 
-ForeignRelayTFConfig::ForeignRelayTFConfig(ros::NodeHandle& multimaster_nh) : config_pnh(multimaster_nh), RelayTFConfig()
+ForeignRelayTFConfig::ForeignRelayTFConfig(ros::NodeHandle& multimaster_nh)
+  : config_pnh(multimaster_nh), RelayTFConfig()
 {
   setupTFList();
 }
@@ -109,7 +111,7 @@ void HostRelayTopicConfig::setupTopicsList()
 void ForeignRelayTopicConfig::setupTopicsList()
 {
   if (!config_pnh.getParam("foreign_pubs",
-                    foreignTopicsList) ||
+                           foreignTopicsList) ||
       foreignTopicsList.size() == 0)  // get list of publisher from foreign master
   {
     ROS_ERROR("List of foreign publisher is not present in config or empty!");
@@ -145,7 +147,7 @@ void ForeignRelayTFConfig::setupTFList()
 {
   vector<string> foreign_tf_copy;
   if (!config_pnh.getParam("foreign_tf",
-                    foreign_tf_copy) ||
+                           foreign_tf_copy) ||
       foreign_tf_copy.size() == 0)  // get list of transforms from foreign master
   {
     ROS_WARN("List of foreign tf transformation is not present in config or empty! Ignore if you dont need it!");

@@ -24,7 +24,6 @@ ForeignRelayTFManager::~ForeignRelayTFManager()
   delete tf_connection;
 }
 
-
 void HostRelayTopicManager::setupConfig()
 {
   topic_cfg = new HostRelayTopicConfig();
@@ -107,29 +106,21 @@ void ForeignRelayTopicManager::spin(double rate)
   while (ros::ok() && ros::master::check() == true)
   {
     ros::spinOnce();
-    loop_rate.sleep();//
+    loop_rate.sleep();  //
   }
 }
 
 void HostRelayTFManager::spin(double rate, ros::Duration diff)
 {
   tf_connection->setBroadcaster(new tf::TransformBroadcaster);
-  std::thread t(
-    [rate, diff, this]{
-      this->tf_connection->listen(rate, diff);
-    }
-  );
+  std::thread t([rate, diff, this] { this->tf_connection->listen(rate, diff); });
   t.detach();
 }
 
 void ForeignRelayTFManager::spin(double rate, ros::Duration diff)
 {
   tf_connection->setBroadcaster(new tf::TransformBroadcaster);
-  std::thread t(
-    [rate, diff, this]{
-      this->tf_connection->listen(rate, diff);
-    }
-  );
+  std::thread t([rate, diff, this] { this->tf_connection->listen(rate, diff); });
   t.detach();
 }
 
