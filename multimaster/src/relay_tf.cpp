@@ -4,16 +4,18 @@
 
 RelayTF::~RelayTF()
 {
+  delete buffer_;
   delete listener_;
   delete broadcaster_;
 }
 
-void RelayTF::setListener(tf::TransformListener* listener)
+void RelayTF::setListener(tf2_ros::Buffer* buffer, tf2_ros::TransformListener* listener)
 {
+  buffer_ = buffer;
   listener_ = listener;
 }
 
-void RelayTF::setBroadcaster(tf::TransformBroadcaster* broadcaster)
+void RelayTF::setBroadcaster(tf2_ros::TransformBroadcaster* broadcaster)
 {
   broadcaster_ = broadcaster;
 }
@@ -28,12 +30,10 @@ void RelayTF::listen(double rate, ros::Duration time)
     {
       for (const auto& tf_name : cfg_->getTFList())
       {
-        tf::StampedTransform transform;
-        listener_->waitForTransform(tf_name.from, tf_name.to, ros::Time::now() - time - ros::Duration(1),
-                                    ros::Duration(1.0));
-        listener_->lookupTransform(tf_name.from, tf_name.to, ros::Time::now() - time - ros::Duration(1), transform);
-        transform.stamp_ = ros::Time::now();
-        broadcaster_->sendTransform(transform);
+        geometry_msgs::TransformStamped transformStamped;
+        transformStamped = buffer_->lookupTransform(tf_name.from, tf_name.to, ros::Time::now() - time);
+        transformStamped.header.stamp = ros::Time::now();
+        broadcaster_->sendTransform(transformStamped);
       }
     }
     catch (tf::TransformException ex)
