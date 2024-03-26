@@ -4,4 +4,4 @@ foreign2host:
   foreign_ip: localhost
   foreign_port: 11311
   msgs_pub_freq: 40.0
-  namespace: foreign2host
+  add_topic_prefix: /dick

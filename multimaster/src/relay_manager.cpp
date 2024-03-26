@@ -106,7 +106,7 @@ void ForeignRelayTopicManager::spin(double rate)
   while (ros::ok() && ros::master::check() == true)
   {
     ros::spinOnce();
-    loop_rate.sleep();  //
+    loop_rate.sleep();
   }
 }
 
