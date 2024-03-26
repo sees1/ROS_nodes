@@ -43,7 +43,7 @@ void RelayTopic::callback(const ros::MessageEvent<topic_tools::ShapeShifter>& ms
   shared_ptr<topic_tools::ShapeShifter const> const& msg = msg_event.getConstMessage();
   shared_ptr<const ros::M_string> const& connection_header = msg_event.getConnectionHeaderPtr();
 
-  ros::Publisher publ = setupPublisher(cfg_->getNamespace() + "/" + topic, msg, connection_header);
+  ros::Publisher publ = setupPublisher(topic, msg, connection_header);
 
   publ.publish(msg);
 }
@@ -55,12 +55,16 @@ void RelayTopic::subscribe()
     ROS_ERROR("Config is not setup!");
     std::terminate();
   }
-  for (const auto& topic : cfg_->getTopicsList())
-  {
-    ros::Subscriber subscriber =
-        relay_nh.subscribe<topic_tools::ShapeShifter>(topic, 10, boost::bind(&RelayTopic::callback, this, _1, topic));
 
-    ROS_INFO("Subscribing on %s topic %s", topic.c_str(), subscriber ? "success!" : "fail!");
+  size_t list_size = cfg_->getListTopicToSub().size();
+
+  for (size_t i = 0; i < list_size; ++i)
+  {
+    ros::Subscriber subscriber = relay_nh.subscribe<topic_tools::ShapeShifter>(
+        cfg_->getListTopicToSub()[i], 10, boost::bind(&RelayTopic::callback, this, _1, cfg_->getListTopicToPub()[i]));
+
+    ROS_INFO("Subscribing on %s and publish %s %s", cfg_->getListTopicToSub()[i].c_str(),
+             cfg_->getListTopicToPub()[i].c_str(), subscriber ? "success!" : "fail!");
 
     vSubscribers.push_back(subscriber);
   }

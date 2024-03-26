@@ -18,12 +18,19 @@
 
 using std::string;
 using std::vector;
+using std::move;
 
-typedef struct
+class TfTransform
 {
+public:
+  TfTransform(string& from, string& to) : from(from), to(to){};
+  TfTransform(TfTransform&& other) : from(move(other.from)), to(move(other.to)){};
+  virtual ~TfTransform(){};
+
+public:
   string from;
   string to;
-} tfTransform;
+};
 
 class RelayTopicConfig
 {
@@ -31,11 +38,15 @@ public:
   RelayTopicConfig(){};
   virtual ~RelayTopicConfig(){};
 
-  virtual const vector<string>& getTopicsList() = 0;
-  virtual string getNamespace() = 0;
+  virtual const vector<string>& getListTopicToSub() = 0;
+  virtual const vector<string>& getListTopicToPub() = 0;
 
 private:
   virtual void setupTopicsList() = 0;
+  virtual void addTopicPrefix(const string& prefix) = 0;
+  virtual void stripTopicPrefix(const string& prefix) = 0;
+  virtual void addTopicSuffix(const string& suffix) = 0;
+  virtual void stripTopicSuffix(const string& suffix) = 0;
 };
 
 class HostRelayTopicConfig : public RelayTopicConfig
@@ -45,15 +56,19 @@ public:
   HostRelayTopicConfig(ros::NodeHandle& multimaster_nh);
   virtual ~HostRelayTopicConfig(){};
 
-  virtual const vector<string>& getTopicsList() override;
-  virtual string getNamespace() override;
+  virtual const vector<string>& getListTopicToSub() override;
+  virtual const vector<string>& getListTopicToPub() override;
 
 private:
   virtual void setupTopicsList() override;
+  virtual void addTopicPrefix(const string& prefix) override;
+  virtual void stripTopicPrefix(const string& prefix) override;
+  virtual void addTopicSuffix(const string& suffix) override;
+  virtual void stripTopicSuffix(const string& suffix) override;
 
 private:
-  vector<string> hostTopicsList;
-  string topic_ns;
+  vector<string> topic_list_to_subscribe;
+  vector<string> topic_list_to_publish;
   ros::NodeHandle config_pnh;
 };
 
@@ -64,15 +79,19 @@ public:
   ForeignRelayTopicConfig(ros::NodeHandle& multimaster_nh);
   virtual ~ForeignRelayTopicConfig(){};
 
-  virtual const vector<string>& getTopicsList() override;
-  virtual string getNamespace() override;
+  virtual const vector<string>& getListTopicToSub() override;
+  virtual const vector<string>& getListTopicToPub() override;
 
 private:
   virtual void setupTopicsList() override;
+  virtual void addTopicPrefix(const string& prefix) override;
+  virtual void stripTopicPrefix(const string& prefix) override;
+  virtual void addTopicSuffix(const string& suffix) override;
+  virtual void stripTopicSuffix(const string& suffix) override;
 
 private:
-  vector<string> foreignTopicsList;
-  string topic_ns;
+  vector<string> topic_list_to_subscribe;
+  vector<string> topic_list_to_publish;
   ros::NodeHandle config_pnh;
 };
 
@@ -82,7 +101,7 @@ public:
   RelayTFConfig(){};
   virtual ~RelayTFConfig(){};
 
-  virtual const vector<tfTransform>& getTFList() = 0;
+  virtual const vector<TfTransform>& getTFList() = 0;
 
 private:
   virtual void setupTFList() = 0;
@@ -95,13 +114,13 @@ public:
   HostRelayTFConfig(ros::NodeHandle& multimaster_nh);
   virtual ~HostRelayTFConfig(){};
 
-  virtual const vector<tfTransform>& getTFList() override;
+  virtual const vector<TfTransform>& getTFList() override;
 
 private:
   virtual void setupTFList() override;
 
 private:
-  vector<tfTransform> hostTFList;
+  vector<TfTransform> tf_list;
   ros::NodeHandle config_pnh;
 };
 
@@ -112,13 +131,13 @@ public:
   ForeignRelayTFConfig(ros::NodeHandle& multimaster_nh);
   virtual ~ForeignRelayTFConfig(){};
 
-  virtual const vector<tfTransform>& getTFList() override;
+  virtual const vector<TfTransform>& getTFList() override;
 
 private:
   virtual void setupTFList() override;
 
 private:
-  vector<tfTransform> foreignTFList;
+  vector<TfTransform> tf_list;
   ros::NodeHandle config_pnh;
 };
 
