@@ -1,4 +1,4 @@
-ROS Nodes
+multimaster_node
 ====================================================
 
 [![Build Status](https://travis-ci.org/Dtananaev/ROS_nodes.svg?branch=master)](https://travis-ci.org/Dtananaev/ROS_nodes)
