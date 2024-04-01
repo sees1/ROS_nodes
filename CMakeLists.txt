@@ -7,8 +7,10 @@ MESSAGE("FLAGS: ${CMAKE_CXX_FLAGS}")
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  tf
   roslib
+  tf2
+  tf2_ros
+  tf2_geometry_msgs
   std_msgs
   topic_tools
 )

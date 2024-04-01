@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
-<package>
-  <name>multimaster_example</name>
-  <version>0.0.0</version>
-  <description>The intercom package</description>
+<package format="2">
+  <name>multimaster</name>
+  <version>1.0.0</version>
+  <description>The multimaster package</description>
 
-  <!-- <maintainer email="dent_10@mail.ru">Den Tan</maintainer> -->
-  <maintainer email="dent_10@mail.ru">denis</maintainer>
+
+  <maintainer email="Vsevolod.Egorov@ronaiv.ru">Vsevolod Egorov</maintainer>
+  <author email="d.d.tananaev@gmail.com">Denis Tananaev</author>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -38,17 +39,14 @@
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>rospy</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>tf</build_depend>
-<build_depend>cmake_modules</build_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>tf</run_depend>
+  <build_depend>cmake_modules</build_depend>
+  <depend>roscpp</depend>
+  <depend>topic_tools</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>std_msgs</depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

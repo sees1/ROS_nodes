@@ -36,7 +36,7 @@ void RelayTF::listen(double rate, ros::Duration time)
         broadcaster_->sendTransform(transformStamped);
       }
     }
-    catch (tf::TransformException ex)
+    catch (tf2::TransformException ex)
     {
       ROS_ERROR("%s", ex.what());
     }
