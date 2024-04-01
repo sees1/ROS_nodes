@@ -11,7 +11,7 @@ multimaster_node is a C++ library that implement proxy for inter-master communic
 Features:
 - Supports broadcast the list of topics from `host pc` to `foreign pc` and vice verse.
 - Supports broadcast the tf transforms from `host pc` to `foreign pc` and vice verse.
-- Released under the [**BSD 3-Clause license**].
+- Released under the [**BSD 2-Clause license**].
 - Support for **ROS1** (see instructions below).
 
 It contains:
