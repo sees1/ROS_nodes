@@ -5,7 +5,7 @@
  *      Author: Denis Tananaev
  */
 
-#include <multimaster/relay_topic.h>
+#include <multimaster_node/relay_topic.h>
 
 // If the input topic is latched, make the output topic latched.
 bool RelayTopic::isLatchTopic(shared_ptr<const ros::M_string> const& connection_header)

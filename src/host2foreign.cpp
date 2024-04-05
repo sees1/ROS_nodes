@@ -5,7 +5,7 @@
  *      Author: Denis Tananaev
  */
 
-#include <multimaster/multimaster.h>
+#include <multimaster_node/multimaster.h>
 
 int main(int argc, char** argv)
 {

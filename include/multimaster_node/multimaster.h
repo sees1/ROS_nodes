@@ -8,7 +8,7 @@
 #ifndef MULTIMASTER_H
 #define MULTIMASTER_H
 
-#include <multimaster/relay_manager.h>
+#include <multimaster_node/relay_manager.h>
 
 namespace ros
 {

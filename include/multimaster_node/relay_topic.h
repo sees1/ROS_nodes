@@ -1,7 +1,7 @@
 #ifndef RELAY_TOPIC_H
 #define RELAY_TOPIC_H
 
-#include <multimaster/relay_config.h>
+#include <multimaster_node/relay_config.h>
 
 using boost::shared_ptr;
 using std::map;

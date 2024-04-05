@@ -1,4 +1,4 @@
-#include <multimaster/relay_config.h>
+#include <multimaster_node/relay_config.h>
 
 HostRelayTopicConfig::HostRelayTopicConfig(ros::NodeHandle& multimaster_nh)
   : config_pnh(multimaster_nh), RelayTopicConfig()

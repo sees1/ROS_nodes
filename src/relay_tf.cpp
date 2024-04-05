@@ -1,6 +1,6 @@
 #include <thread>
 #include <mutex>
-#include <multimaster/relay_tf.h>
+#include <multimaster_node/relay_tf.h>
 
 RelayTF::~RelayTF()
 {
@@ -32,7 +32,7 @@ void RelayTF::listen(double rate, ros::Duration time)
       for (const auto& tf_name : cfg_->getTFList())
       {
         *transformStamped = buffer_->lookupTransform(tf_name.from, tf_name.to, ros::Time::now() - time);
-        *transformStamped.header.stamp = ros::Time::now();
+        transformStamped->header.stamp = ros::Time::now();
         broadcaster_->sendTransform(*transformStamped);
       }
     }
