@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>multimaster</name>
+  <name>multimaster_node</name>
   <version>1.0.0</version>
   <description>The multimaster package</description>
 
