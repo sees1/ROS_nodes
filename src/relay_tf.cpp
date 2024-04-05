@@ -27,11 +27,18 @@ void RelayTF::listen(double rate, ros::Duration time)
   geometry_msgs::TransformStamped* transformStamped = new geometry_msgs::TransformStamped;
   while (ros::ok())
   {
-    for (const auto& tf_name : cfg_->getTFList())
+    try
     {
-      *transformStamped = buffer_->lookupTransform(tf_name.from, tf_name.to, ros::Time::now() - time);
-      transformStamped->header.stamp = ros::Time::now();
-      broadcaster_->sendTransform(*transformStamped);
+      for (const auto& tf_name : cfg_->getTFList())
+      {
+        *transformStamped = buffer_->lookupTransform(tf_name.from, tf_name.to, ros::Time::now() - time);
+        transformStamped->header.stamp = ros::Time::now();
+        broadcaster_->sendTransform(*transformStamped);
+      }
+    }
+    catch (tf2::TransformException &ex)
+    {
+      ROS_ERROR("%s", ex.what());
     }
     loop_rate.sleep();
   }
