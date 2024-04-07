@@ -79,7 +79,7 @@ void ForeignRelayTopicManager::connectToMaster()
 void HostRelayTFManager::connectToMaster()
 {
   tf_connection = new RelayTF(tf_cfg);
-  tf2_ros::Buffer* buffer = new tf2_ros::Buffer(ros::Duration(3.0));
+  tf2_ros::Buffer* buffer = new tf2_ros::Buffer(ros::Duration(6.0));
   tf2_ros::TransformListener* listener = new tf2_ros::TransformListener(*buffer);
   tf_connection->setListener(buffer, listener);
 }
@@ -87,7 +87,7 @@ void HostRelayTFManager::connectToMaster()
 void ForeignRelayTFManager::connectToMaster()
 {
   tf_connection = new RelayTF(tf_cfg);
-  tf2_ros::Buffer* buffer = new tf2_ros::Buffer(ros::Duration(3.0));
+  tf2_ros::Buffer* buffer = new tf2_ros::Buffer(ros::Duration(6.0));
   tf2_ros::TransformListener* listener = new tf2_ros::TransformListener(*buffer);
   tf_connection->setListener(buffer, listener);
 }
