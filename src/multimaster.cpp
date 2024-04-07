@@ -12,7 +12,6 @@ HFMultimaster::HFMultimaster() : nh(), pnh("~"), Multimaster()
   setupParam();
   manager = new HostRelayTopicManager();
   tf_manager = new HostRelayTFManager();
-  tkeep = new Timekeeper();
 }
 
 FHMultimaster::FHMultimaster() : nh(), pnh("~"), Multimaster()
@@ -20,21 +19,18 @@ FHMultimaster::FHMultimaster() : nh(), pnh("~"), Multimaster()
   setupParam();
   manager = new ForeignRelayTopicManager();
   tf_manager = new ForeignRelayTFManager();
-  tkeep = new Timekeeper();
 }
 
 HFMultimaster::~HFMultimaster()
 {
   delete manager;
   delete tf_manager;
-  delete tkeep;
 }
 
 FHMultimaster::~FHMultimaster()
 {
   delete manager;
   delete tf_manager;
-  delete tkeep;
 }
 
 string HFMultimaster::get_foreign_master_uri()
@@ -69,24 +65,6 @@ void FHMultimaster::switch_to_foreign()
 {
   remappings["__master"] = foreign_master;
   ros::master::init(remappings);
-}
-
-void HFMultimaster::setupTimekeeper()
-{
-  tkeep->setForeignTime();
-
-  switch_to_host();
-
-  tkeep->setHostTime();
-}
-
-void FHMultimaster::setupTimekeeper()
-{
-  tkeep->setForeignTime();
-
-  switch_to_host();
-
-  tkeep->setHostTime();
 }
 
 void HFMultimaster::setupParam()
@@ -139,8 +117,6 @@ void FHMultimaster::setupParam()
 
 void HFMultimaster::establish_connection()
 {
-  setupTimekeeper();
-
   manager->setupConfig(pnh);
   tf_manager->setupConfig(pnh);
 
@@ -149,14 +125,12 @@ void HFMultimaster::establish_connection()
 
   switch_to_foreign();
 
-  tf_manager->spin(msgs_pub_freq, tkeep->difference());
+  tf_manager->spin(msgs_pub_freq);
   manager->spin(msgs_pub_freq);
 }
 
 void FHMultimaster::establish_connection()
 {
-  setupTimekeeper();
-
   manager->setupConfig(pnh);
   tf_manager->setupConfig(pnh);
 
@@ -167,6 +141,6 @@ void FHMultimaster::establish_connection()
 
   switch_to_host();
 
-  tf_manager->spin(msgs_pub_freq, tkeep->difference());
+  tf_manager->spin(msgs_pub_freq);
   manager->spin(msgs_pub_freq);
 }

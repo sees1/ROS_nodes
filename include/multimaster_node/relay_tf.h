@@ -12,7 +12,7 @@ public:
   RelayTF(RelayTFConfig* cfg) : relay_nh_(), cfg_(cfg){};
   ~RelayTF();
 
-  void listen(double rate, ros::Duration time);
+  void listen(double rate);
   void setListener(tf2_ros::Buffer* buffer, tf2_ros::TransformListener* listener);
   void setBroadcaster(tf2_ros::TransformBroadcaster* broadcaster);
 

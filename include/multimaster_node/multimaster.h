@@ -31,7 +31,6 @@ public:
   virtual void switch_to_foreign() = 0;
 
 private:
-  virtual void setupTimekeeper() = 0;
   virtual void setupParam() = 0;
 };
 
@@ -49,7 +48,6 @@ public:
 
 private:
   void init(ros::M_string remappings);
-  virtual void setupTimekeeper() override;
   virtual void setupParam() override;
 
 private:
@@ -59,7 +57,6 @@ private:
   ros::NodeHandle nh, pnh;
   RelayTopicManager* manager;
   RelayTFManager* tf_manager;
-  Timekeeper* tkeep;
 };
 
 class FHMultimaster : public Multimaster
@@ -76,7 +73,6 @@ public:
 
 private:
   void init(ros::M_string remappings);
-  virtual void setupTimekeeper() override;
   virtual void setupParam() override;
 
 private:
@@ -86,7 +82,6 @@ private:
   ros::NodeHandle nh, pnh;
   RelayTopicManager* manager;
   RelayTFManager* tf_manager;
-  Timekeeper* tkeep;
 };
 
 #endif /* MULTIMASTER_H */

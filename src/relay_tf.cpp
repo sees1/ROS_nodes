@@ -20,7 +20,7 @@ void RelayTF::setBroadcaster(tf2_ros::TransformBroadcaster* broadcaster)
   broadcaster_ = broadcaster;
 }
 
-void RelayTF::listen(double rate, ros::Duration time)
+void RelayTF::listen(double rate)
 {
   // ros::Duration(5).sleep();
   ros::Rate loop_rate(rate);
@@ -31,7 +31,7 @@ void RelayTF::listen(double rate, ros::Duration time)
     {
       for (const auto& tf_name : cfg_->getTFList())
       {
-        *transformStamped = buffer_->lookupTransform(tf_name.from, tf_name.to, ros::Time::now() - time);
+        *transformStamped = buffer_->lookupTransform(tf_name.from, tf_name.to, ros::Time(0));
         transformStamped->header.stamp = ros::Time::now();
         broadcaster_->sendTransform(*transformStamped);
       }
