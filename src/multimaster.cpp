@@ -118,29 +118,29 @@ void FHMultimaster::setupParam()
 void HFMultimaster::establish_connection()
 {
   manager->setupConfig(pnh);
-  tf_manager->setupConfig(pnh);
+  // tf_manager->setupConfig(pnh);
 
   manager->connectToMaster();
-  tf_manager->connectToMaster();
+  // tf_manager->connectToMaster();
 
   switch_to_foreign();
 
-  tf_manager->spin(msgs_pub_freq);
+  // tf_manager->spin(msgs_pub_freq);
   manager->spin(msgs_pub_freq);
 }
 
 void FHMultimaster::establish_connection()
 {
   manager->setupConfig(pnh);
-  tf_manager->setupConfig(pnh);
+  // tf_manager->setupConfig(pnh);
 
   switch_to_foreign();
 
   manager->connectToMaster();
-  tf_manager->connectToMaster();
+  // tf_manager->connectToMaster();
 
   switch_to_host();
 
-  tf_manager->spin(msgs_pub_freq);
+  // tf_manager->spin(msgs_pub_freq);
   manager->spin(msgs_pub_freq);
 }
