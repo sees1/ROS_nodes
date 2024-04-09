@@ -22,23 +22,22 @@ void RelayTF::setBroadcaster(tf2_ros::TransformBroadcaster* broadcaster)
 
 void RelayTF::listen(double rate)
 {
-  // ros::Duration(5).sleep();
   ros::Rate loop_rate(rate);
-  geometry_msgs::TransformStamped* transformStamped = new geometry_msgs::TransformStamped;
   while (ros::ok())
   {
-    try
+    const std::vector<TfTransform>& transforms = cfg_->getTFList();
+    for (const auto& tf_name : transforms)
     {
-      for (const auto& tf_name : cfg_->getTFList())
+      try
       {
-        *transformStamped = buffer_->lookupTransform(tf_name.from, tf_name.to, ros::Time(0));
-        transformStamped->header.stamp = ros::Time::now();
-        broadcaster_->sendTransform(*transformStamped);
+        auto transform = buffer_->lookupTransform(tf_name.from, tf_name.to, ros::Time(0));
+        transform.header.stamp = ros::Time::now();
+        broadcaster_->sendTransform(transform);
       }
-    }
-    catch (tf2::TransformException &ex)
-    {
-      ROS_ERROR("%s", ex.what());
+      catch (tf2::TransformException& ex)
+      {
+        ROS_ERROR("%s", ex.what());
+      }
     }
     loop_rate.sleep();
   }
