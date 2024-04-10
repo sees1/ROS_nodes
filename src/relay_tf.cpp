@@ -22,7 +22,7 @@ void RelayTF::setBroadcaster(tf2_ros::TransformBroadcaster* broadcaster)
 
 void RelayTF::listen(double rate)
 {
-  ros::Rate loop_rate(200.0);
+  ros::Rate loop_rate(rate);
   while (ros::ok())
   {
     const std::vector<TfTransform>& transforms = cfg_->getTFList();

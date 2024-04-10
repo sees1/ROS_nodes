@@ -103,6 +103,7 @@ public:
   virtual ~RelayTFConfig(){};
 
   virtual const vector<TfTransform>& getTFList() = 0;
+  virtual const bool isEmptyList() = 0;
 
 private:
   virtual void setupTFList() = 0;
@@ -116,11 +117,13 @@ public:
   virtual ~HostRelayTFConfig(){};
 
   virtual const vector<TfTransform>& getTFList() override;
+  virtual const bool isEmptyList() override;
 
 private:
   virtual void setupTFList() override;
 
 private:
+  bool is_empty_list;
   vector<TfTransform> tf_list;
   ros::NodeHandle config_pnh;
 };
@@ -133,11 +136,13 @@ public:
   virtual ~ForeignRelayTFConfig(){};
 
   virtual const vector<TfTransform>& getTFList() override;
+  virtual const bool isEmptyList() override;
 
 private:
   virtual void setupTFList() override;
 
 private:
+  bool is_empty_list;
   vector<TfTransform> tf_list;
   ros::NodeHandle config_pnh;
 };

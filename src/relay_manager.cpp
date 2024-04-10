@@ -79,7 +79,7 @@ void ForeignRelayTopicManager::connectToMaster()
 void HostRelayTFManager::connectToMaster()
 {
   tf_connection = new RelayTF(tf_cfg);
-  tf2_ros::Buffer* buffer = new tf2_ros::Buffer(ros::Duration(2.0));
+  tf2_ros::Buffer* buffer = new tf2_ros::Buffer(ros::Duration(5.0));
   tf2_ros::TransformListener* listener = new tf2_ros::TransformListener(*buffer);
   tf_connection->setListener(buffer, listener);
 }
@@ -87,7 +87,7 @@ void HostRelayTFManager::connectToMaster()
 void ForeignRelayTFManager::connectToMaster()
 {
   tf_connection = new RelayTF(tf_cfg);
-  tf2_ros::Buffer* buffer = new tf2_ros::Buffer(ros::Duration(2.0));
+  tf2_ros::Buffer* buffer = new tf2_ros::Buffer(ros::Duration(5.0));
   tf2_ros::TransformListener* listener = new tf2_ros::TransformListener(*buffer);
   tf_connection->setListener(buffer, listener);
 }
@@ -117,13 +117,19 @@ void ForeignRelayTopicManager::spin(double rate)
 void HostRelayTFManager::spin(double rate)
 {
   tf_connection->setBroadcaster(new tf2_ros::TransformBroadcaster);
-  std::thread t([rate, this] { this->tf_connection->listen(rate); });
-  t.detach();
+  if(!tf_cfg->isEmptyList())
+  {
+    std::thread t([rate, this] { this->tf_connection->listen(rate); });
+    t.detach(); 
+  }
 }
 
 void ForeignRelayTFManager::spin(double rate)
 {
   tf_connection->setBroadcaster(new tf2_ros::TransformBroadcaster);
-  std::thread t([rate, this] { this->tf_connection->listen(rate); });
-  t.detach();
+  if(!tf_cfg->isEmptyList())
+  {
+    std::thread t([rate, this] { this->tf_connection->listen(rate); });
+    t.detach(); 
+  }
 }

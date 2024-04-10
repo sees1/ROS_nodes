@@ -22,23 +22,23 @@ ForeignRelayTopicConfig::ForeignRelayTopicConfig() : config_pnh(), RelayTopicCon
   setupTopicsList();
 }
 
-HostRelayTFConfig::HostRelayTFConfig(ros::NodeHandle& multimaster_nh) : config_pnh(multimaster_nh), RelayTFConfig()
+HostRelayTFConfig::HostRelayTFConfig(ros::NodeHandle& multimaster_nh) : is_empty_list(true), config_pnh(multimaster_nh), RelayTFConfig()
 {
   setupTFList();
 }
 
-HostRelayTFConfig::HostRelayTFConfig() : config_pnh(), RelayTFConfig()
+HostRelayTFConfig::HostRelayTFConfig() : is_empty_list(true), config_pnh(), RelayTFConfig()
 {
   setupTFList();
 }
 
 ForeignRelayTFConfig::ForeignRelayTFConfig(ros::NodeHandle& multimaster_nh)
-  : config_pnh(multimaster_nh), RelayTFConfig()
+  : is_empty_list(true), config_pnh(multimaster_nh), RelayTFConfig()
 {
   setupTFList();
 }
 
-ForeignRelayTFConfig::ForeignRelayTFConfig() : config_pnh(), RelayTFConfig()
+ForeignRelayTFConfig::ForeignRelayTFConfig() : is_empty_list(true), config_pnh(), RelayTFConfig()
 {
   setupTFList();
 }
@@ -284,6 +284,7 @@ void HostRelayTFConfig::setupTFList()
     return;
   }
 
+  is_empty_list = false;
   tf_list.reserve(local_tf_copy.size());
   for (const auto& transform_name : local_tf_copy)
   {
@@ -316,6 +317,7 @@ void ForeignRelayTFConfig::setupTFList()
     return;
   }
 
+  is_empty_list = false;
   tf_list.reserve(tf_list.size() + foreign_tf_copy.size());
   for (const auto& transform_name : foreign_tf_copy)
   {
@@ -328,4 +330,14 @@ void ForeignRelayTFConfig::setupTFList()
     }
   }
   ROS_INFO("List of foreign TF is set!");
+}
+
+const bool HostRelayTFConfig::isEmptyList()
+{
+  return is_empty_list;
+}
+
+const bool ForeignRelayTFConfig::isEmptyList()
+{
+  return is_empty_list;
 }
