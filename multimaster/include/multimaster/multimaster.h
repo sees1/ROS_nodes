@@ -1,14 +1,7 @@
-/*
- * File: multimaster
- * Author: Denis Tananaev
- * Date: 23.02.2017
- *
- */
-
 #ifndef MULTIMASTER_H
 #define MULTIMASTER_H
 
-#include <multimaster_node/relay_manager.h>
+#include <multimaster/relay_manager.h>
 
 namespace ros
 {

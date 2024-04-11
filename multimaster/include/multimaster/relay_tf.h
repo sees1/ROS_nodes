@@ -1,7 +1,7 @@
 #ifndef RELAY_TF_H
 #define RELAY_TF_H
 
-#include <multimaster_node/relay_config.h>
+#include <multimaster/relay_config.h>
 
 using boost::shared_ptr;
 using std::map;

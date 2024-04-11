@@ -1,8 +1,8 @@
 #ifndef RELAY_MANAGER_H
 #define RELAY_MANAGER_H
 
-#include <multimaster_node/relay_tf.h>
-#include <multimaster_node/relay_topic.h>
+#include <multimaster/relay_tf.h>
+#include <multimaster/relay_topic.h>
 #include <thread>
 
 class RelayTopicManager

@@ -1,11 +1,4 @@
-/*
- *
- *
- *  Created on: Februar 23.02.2017
- *      Author: Denis Tananaev
- */
-
-#include <multimaster_node/multimaster.h>
+#include <multimaster/multimaster.h>
 
 int main(int argc, char** argv)
 {

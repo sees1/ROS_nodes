@@ -1,11 +1,4 @@
-/*
- *  File :multimaster.cpp
- *
- *  Created on: Februar 23.02.2017
- *      Author: Denis Tananaev
- */
-
-#include <multimaster_node/multimaster.h>
+#include <multimaster/multimaster.h>
 
 HFMultimaster::HFMultimaster() : nh(), pnh("~"), Multimaster()
 {

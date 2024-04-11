@@ -1,4 +1,4 @@
-#include <multimaster_node/relay_manager.h>
+#include <multimaster/relay_manager.h>
 
 HostRelayTopicManager::~HostRelayTopicManager()
 {
